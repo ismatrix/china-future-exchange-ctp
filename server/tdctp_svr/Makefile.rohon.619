@@ -1,0 +1,10 @@
+TARGET  := tdctp_svr
+
+LIBS    +=  -Wl,-Bstatic -L../base/ -lfuture -lctp.619 -lcommon -lencrypt  ${LIB_RONGHANG_TD_619} 
+
+INCLUDE += -I./  -I../base/ -D  __CTP__VERSION__=619
+
+include ../../Makefile
+
+include ../Makefile.inc
+

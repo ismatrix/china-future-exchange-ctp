@@ -1,0 +1,37 @@
+#TDCTP.Server 与客户端中相对应
+#sender 与server端的字符串对应
+#MDLIVE.Proxy=sender:tcp -h 127.0.0.1 -p 10001
+#MDLIVE.Proxy=sender:tcp -h 121.40.36.116 -p 10001
+MDLIVE.Proxy=sender:tcp -h 10.25.212.104 -p 10001
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+Ice.Trace.Network=0
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+Ice.Trace.Protocol=0
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+

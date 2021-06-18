@@ -1,0 +1,11 @@
+ ./tdsungard_svr --Ice.Config=config.server
+
+./client --Ice.Config=config.client
+
+使用16版本的金仕达库
+make debug -f ./Makefile.16
+
+使用15版本的金仕达库
+make debug -f ./Makefile.15
+
+

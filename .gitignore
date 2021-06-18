@@ -1,0 +1,9 @@
+# logs
+*.log
+
+# lib
+*.d
+*.o
+*.a
+
+# release

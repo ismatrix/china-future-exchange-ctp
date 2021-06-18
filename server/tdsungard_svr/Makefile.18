@@ -1,0 +1,10 @@
+TARGET  := tdsungard_svr
+
+LIBS    +=  -Wl,-Bstatic -L../base/ -lfuture -lctp -lsungard.1.8 -lcommon -lencrypt  ${LIB_SUNGARD18}
+
+INCLUDE += -I./  -I../base/ -D  __SUNGARD__VERSION__=18
+
+include ../../Makefile
+
+include ../Makefile.inc
+

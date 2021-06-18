@@ -1,0 +1,36 @@
+#TDCTP.Server 与客户端中相对应
+#sender 与server端的字符串对应
+MDPAST.Proxy=sender:tcp -h 121.40.36.116 -p 10101
+#MDPAST.Proxy=sender:tcp -h 120.76.98.94 -p 10101
+
+#
+# Warn about connection exceptions
+#
+#Ice.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+#Ice.Trace.Network=3
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+#Ice.Trace.Protocol=1
+
+#
+# Security Tracing
+#
+# 0 = no security tracing
+# 1 = trace messages
+#
+#IceSSL.Trace.Security=1
+

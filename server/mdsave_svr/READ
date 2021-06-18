@@ -1,0 +1,13 @@
+1. 接受行情数据
+2. 生成1min k和ticker数据
+3. 写文件
+4. 1分k收盘之后写文件 以追加的方式
+5. ticker
+
+//和文本
+/tradingday/minute.txt
+/tradingday/ticker.txt
+
+//二进制
+/tradingday/minute.dat
+/tradingday/ticker.dat

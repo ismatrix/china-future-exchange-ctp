@@ -1,0 +1,20 @@
+ ./tdctp_svr --Ice.Config=config.server
+
+
+./client --Ice.Config=config.client
+
+
+1. 每天查询一次合约信息入库
+
+2. 每天查询一次账户信息 持仓信息 先清空所有的内存
+
+
+
+
+
+
+
+
+
+
+

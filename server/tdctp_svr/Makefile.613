@@ -1,0 +1,10 @@
+TARGET  := tdctp_svr
+
+LIBS    +=  -Wl,-Bstatic -L../base/ -lfuture -lctp.613 -lcommon -lencrypt  ${LIB_CTP_TD_613}
+
+INCLUDE += -I./  -I../base/ -D  __CTP__VERSION__=613
+
+include ../../Makefile
+
+include ../Makefile.inc
+

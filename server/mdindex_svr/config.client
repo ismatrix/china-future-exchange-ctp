@@ -1,0 +1,3 @@
+MDLIVE.Proxy=sender:tcp -h 127.0.0.1 -p 10001
+Ice.Warn.Connections=0
+Ice.Trace.Network=0

@@ -1,0 +1,14 @@
+ ./mdlive_svr --Ice.Config=config.server
+
+glacier2router   --Ice.Config=config.glacier2router    
+
+./client --Ice.Config=config.client
+
+
+
+连接断开 destroy 的时候死锁
+
+
+突然断网  server感知不到客户端的断开  同时push就会core
+
+

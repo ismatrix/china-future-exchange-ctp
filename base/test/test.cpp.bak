@@ -1,0 +1,571 @@
+/*************************************************************************
+    > File Name: test.cpp
+    > Created Time: Mon 28 Mar 2016 08:17:32 PM CST
+    > Author: 
+    > description: 
+ ************************************************************************/
+
+#include <limits.h>
+#include <float.h>
+#include <iostream>
+#include <json/json.h>
+#include <fstream>
+#include "timer.h"
+#include <iostream>
+#include <iomanip>
+#include <typeinfo>
+#include <set>
+#include <map>
+//#include "comm_def.h"
+#include "RollLog.h"
+#include "mongoc_json.h"
+#include "singleton.h"
+#include "convert.h"
+#include "util.h"
+#include "convert.h"
+#include "csocket.h"
+#include "ssl_csocket.h"
+#include "smtp_send_mail.h"
+#include "test_libev.h"
+
+using namespace std;
+
+void test_socket()
+{
+	char user[] = "";
+	char buf[1024] = "";
+	
+	smtp_send_mail_login_t login;
+	login._host = "smtp.exmail.qq.com";
+	login._port = 25;
+	//login._auth_user = "775745576@qq.com";
+	//login._auth_pswd = "mobosxstpxcebdeh";
+
+	login._auth_user = "dreamy.zhang@invesmart.cn";
+	login._auth_pswd = "tm7409TMA";
+
+
+	smtp_send_mail_t mail;
+	//mail._from = "775745576@qq.com";
+	mail._from = "dreamy.zhang@invesmart.cn";
+	
+	mail._subject = "title";
+	mail._content = "body";
+	mail._rcpt_lst.push_back("13651401725@qq.com");
+	mail._rcpt_lst.push_back("dreamy.zhang@qq.com");
+	mail._rcpt_lst.push_back("dreamy.zhang@foxmail.com");
+	mail._rcpt_lst.push_back("dreamy.zhang@invesmart.cn");
+	
+	cout << "smtp_send_mail=" << smtp_send_mail(login, mail) << endl;
+
+	return 0;
+	
+	CSocketSSL s;
+	s.create();
+	cout << "s.connect=" << s.connect("183.57.48.35", 25) << endl;
+
+	cout << "s.send=" << s.send("HELO Local ", 11) << endl;
+	cout << "s.receive=" << s.receive(buf, 1024) << endl;
+	cout << "buf=" << buf << endl;
+
+	cout << "s.send=" << s.send("HELO Local ", 11) << endl;
+	cout << "s.receive=" << s.receive(buf, 1024) << endl;
+	cout << "buf=" << buf << endl;
+
+	cout << "s.send=" << s.send("HELO Local ", 11) << endl;
+	cout << "s.receive=" << s.receive(buf, 1024) << endl;
+	cout << "buf=" << buf << endl;
+
+	cout << "s.send=" << s.send("HELO Local ", 11) << endl;
+	cout << "s.receive=" << s.receive(buf, 1024) << endl;
+	cout << "buf=" << buf << endl;
+
+
+
+	return 0;
+	cout << "s.ssl_create_bind_socket=" << s.ssl_create_bind_socket()  << endl;
+	cout << s.get_errmsg() << endl;
+
+	cout << "s.ssl_send=" << s.ssl_send("HELO Local ", 10)   << endl;
+
+	cout << "s.ssl_receove=" << s.ssl_receive(buf, 1024)   <<endl;
+	cout <<"  " << s.get_errmsg() << endl;
+
+	cout << "recv=" << buf << endl;
+
+	s.ssl_close();
+}
+void test_aes()
+{
+	unsigned char obuf[1024];
+	unsigned char key[] = "0123456789abcdef";
+	//unsigned char iv[] = "123";
+	unsigned char ibuf[1024] = "0123456789abcdefcxcxcxcxc";
+
+	//OpenSSL_add_all_algorithms();
+
+	int olen;
+	encrypt_aes_128_ecb(key, ibuf, 1024, obuf, &olen);
+
+	printf("buf: \n");
+	for(int i=0; i<sizeof(ibuf); i++)
+	{
+		printf("%c ", ibuf[i]);
+	}
+	printf("\n");
+
+	printf("encrypt: \n");
+	for(int i=0; i<olen; i++)
+	{
+		printf("%02x ", obuf[i]);
+	}
+	printf("\n");
+
+	for(int i=0;i<32, i*32<1024; i++)
+	{
+	
+	char bb[1024]={};
+	memcpy(bb, obuf+i*32, 32);
+
+	uint8_t oobuf[10240];
+	int oolen;
+	//decrypt_aes_128_ecb(key, obuf, olen, oobuf, &oolen);
+	decrypt_aes_128_ecb(key, bb, 32, oobuf, &oolen);
+
+	printf("decrypt: \n");
+	for(int i=0; i<oolen; i++)
+	{
+		printf("%c ", oobuf[i]);
+	}
+	printf("\n");
+	}
+}
+
+void test_log(void)
+{
+	LOG_INIT(__FILE__, 5, 10240000, 10);
+
+	int a = 10;
+	string s = "dsdsdsd";
+
+	for(int i = 0; i<100; i++)
+	{
+		LOG << debug << "debug " << a << s  << endl;
+
+		LOG << normal << "normal " << a << s  << endl;
+
+		LOG << adderror << "error " << a << s  << endl;
+
+
+		LOG_DEBUG("LOG_DEBUG " << __FILE__ << a << s << " ttttt");
+		LOG_ERROR("LOG_ERROR " << __FILE__  << a << s  << " ttttt");
+		LOG_NORMAL("LOG_NORMAL " << __FILE__ << a << s  << " ttttt");
+	}
+}
+
+void test_mongo()
+{
+	/*
+	//²âÊÔmongo¶àÏß³Ì
+	pthread_t pid;
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_query_account,  &ctp);
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_query_position, &ctp);
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_query_done,     &ctp);
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_query_order,        &ctp);
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_doorder,    &ctp);
+	
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_query_account,  &ctp);
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_query_position, &ctp);
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_query_done,     &ctp);
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_query_order,        &ctp);
+	for(int i=0; i<500; i++) pthread_create(&pid, NULL, fun_doorder,    &ctp);
+	*/
+
+
+
+	CMongodb& db = CMongodb::Instance();
+	db.Init("mongodb://127.0.0.1", "test", "T");
+
+	Json::Value root, date;
+
+	date["$date"] = (double)time(NULL) * 1000;
+
+	root["time"] = date;
+	root["test"] = "time";
+
+	if(db.Insert(root.toStyledString()))
+	{
+		printf("error: %s, \n", db.GetLastErr());
+		return;
+	}
+	db.Query("{}");
+
+	cout << "count =" << db.GetCount("{}") << endl;
+	
+	while(db.Next())
+	{
+		char* p =  db.GetResult();
+		cout << p << endl;
+
+		Json::Value root;
+		//Json::Reader reader(Json::Features::strictMode());
+		Json::Reader reader;
+		if(!reader.parse(p, root))
+		{
+			cout << "jsoncpp prase error\n";
+			return;
+		}
+		cout << "iosdate=" <<  isodate_to_stamp(root["time"]) << endl; 
+		cout << " not iosdate=" << isodate_to_stamp(root["test"]) << endl;
+	}
+
+
+	db.ReInit("smartwin", "INSTRUMENT");
+	cout << "db.query=" << db.Query("{\"a\":12}") << endl;
+	while(db.Next())
+	{
+		char* p =  db.GetResult();
+		if(p!=NULL)
+			cout << p << endl;
+		else
+			cout << "NULL" << endl;
+
+		cout << "query INSTRUMENT\n";
+	}
+	cout << "count:" << db.GetCount("{\"a\":12}") << " lasterror=" << db.GetLastErr() << " code=" << db.GetLastCode()<< endl;
+
+	/*
+	   Json::Value v, r;
+	   v["n"] = 11;
+	//v["d1"] = "new Data()";
+	//v["d2"] = "new Data(\"2016-06-23 14:12:12\")";
+	//v["d3"] = "new Data(2016-06-23 14:12:12)";
+
+
+	r["$date"]  =	"2016-06-23";
+	v["d4"] = r; 
+
+	//int ret1 = db.Insert(v.toStyledString());
+
+	//cout << "count:" << db.GetCount() << " ret=" << ret1 << endl;;
+
+	db.Query("{\"n\" : 10}");
+	while(db.Next())
+	{
+	string s = db.GetResult(); 
+	cout << s << endl;
+	}
+	cout << "count:" << db.GetCount() << endl;;
+	*/
+}
+
+class TT
+{
+	public:
+		void out(){
+			cout << "wwww\n";
+		}
+
+};
+
+void test_jsoncpp()
+{
+	string result = "{\"a\":10, \"b\":\"sdsdfd\"}";
+	Json::Value root;
+	Json::Reader reader(Json::Features::strictMode());
+	if(!reader.parse(result, root))
+	{
+		cout << "jsoncpp prase error\n";
+		return;
+	}
+
+	//	printf("%s   %d\n", root["c"].asString().c_str(), root["b"].asInt());
+
+	char s1[10];
+	memcpy(s1, root["b"].asString().c_str(), 10);
+
+	cout << s1 << endl;
+}
+
+class Time
+{
+	public:
+		Time(){
+			a= 100;
+		};
+		void init()
+		{
+			//set(double tv, handler_type* handler, function_type function, void* arg, bool repeat)
+			//set(double tv, function_type function, void* arg, bool repeat)
+			//_timer.set(0.1, this, &callback, NULL, true);
+			_timer.set(0.1, this, &this->callback, NULL, true, 12, 33);
+			//	_timer.__call();
+
+			_timer.check();
+			//		_timer.set(2.0,  &callback_static, NULL, true);
+			//	_timer.__call();
+
+		}
+
+		static void callback_static()
+		{
+			printf("callback_static\n");
+		}
+		void callback()
+		{
+			struct timeval tv;
+			gettimeofday(&tv, NULL);
+			uint64_t t = tv.tv_usec + tv.tv_sec*1000000;
+
+			printf("class member:%d %lu\n", a, t);
+		}
+
+	private:
+		nw_timer _timer;
+		int a;
+
+};
+
+void test_ifstream()
+{
+	//	cout<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2);
+
+	char buf[256] = { 0	};
+	fstream in;
+	in.open("a.txt", ios::in);
+	while(in.getline(buf, 256, ','))
+	{
+		double t = atof(buf);
+
+		cout << t << "\t";
+	}
+}
+
+
+template<typename T>
+class TA
+{
+	public:
+		TA(int _i){i=_i;}
+		static int i;
+};
+template<typename T> int TA<T>::i = 0;
+int test_template()
+{
+	TA<int32_t> t1(1);
+	TA<int16_t> t2(2);
+	TA<int64_t> t3(3);
+	TA<float>   t4(4);
+	cout << "t1=" << t1.i << " t2=" << t2.i << " t3=" << t3.i << " t4=" << t4.i << endl;
+	cout << "t1=" << TA<int32_t>::i << " t2=" << TA<int16_t>::i << " t3=" << TA<int64_t>::i << " t4=" << TA<float>::i << endl;
+	return 0;
+}
+
+int test_bson()
+{
+	bson_t b, child, m;
+	bson_init(&b);
+	bson_init(&child);
+	bson_init(&m);
+
+
+	bson_append_array_begin(&m, "array", 5, &b);
+	
+	
+	bson_append_document_begin(&b, "0", -1, &child);
+	BSON_APPEND_INT64(&child, "field1", 22);
+	bson_append_document_end(&b, &child);
+
+	bson_append_document_begin(&b,  "1", -1, &child);
+	BSON_APPEND_INT64(&child, "field1", 22);
+	bson_append_document_end(&b, &child);
+	
+
+	bson_append_array_end(&m,  &b);
+
+
+//	bson_append_array(&b, "array1", 1, &m);
+	
+	cout << bson_as_json(&b, NULL) << endl; 
+	cout << bson_as_json(&m, NULL) << endl; 
+
+
+	bson_iter_t iter;
+	if (bson_iter_init (&iter, &m)) 
+	{
+		while (bson_iter_next (&iter))
+		{
+			 string key = bson_iter_key (&iter);
+			 //string value = bson_iter_symbol (&iter, 10);
+		     //printf ("Found a field named: %s %s\n", key.c_str(), value.c_str());
+		}
+	}
+
+
+}
+
+int main(int argv, char* argc[])
+{
+
+	test_bson();
+
+	return 0;
+
+	char buf[4] = "  54";
+
+	cout << "buf = " << buf << endl;
+	
+	RemoveChar(buf, ':');
+	
+	cout << "buf = " << buf << endl;
+	
+	return 0;
+
+
+	LOG_INIT(__FILE__, 5, 10240000, 10);
+	//test_mongo();
+	/*	
+		printf("%f, %f\n", DBL_MAX, FLT_MAX);
+
+		Singleton<TT>::Instance().out();
+
+		test_mongo();
+
+		test_jsoncpp();
+
+		test_ifstream();
+		Time t;
+		while(true)
+		{
+		t.init();
+		usleep(1);
+		}
+		*/
+	//	test_mongo();
+	/*	
+		test_mongo();
+
+		double a = 10.0;
+		int b =1;
+
+		if(typeid(a) == typeid(0.1))
+		cout << "a is " << typeid(a).name() << endl;
+
+
+		string s = typeid(b).name();
+		if(s == "i")
+		cout << "b is " << typeid(b).name()  << endl;
+
+		char s1 = '1';
+
+		string ss1 = &s1;
+
+		cout << "char = " << s1 << " string=" << ss1 << endl;
+
+		char ttt;
+		memcpy(&ttt, ss1.c_str(), sizeof(ttt));
+		cout << "ttt=" << ttt << endl;
+
+		ttt = ss1[0];
+		cout << "ttt=" << ttt << endl;
+
+		Json::Value vv;
+		vv["t"] = "";
+
+		string mm;
+		cout << "vv[i] = " << (int)vv["t"].asString()[0] << " mm=" << (int)mm[0] << endl;
+
+		char mx='\0';
+		char q[12];
+		snprintf(q, 10, "%c", mx);
+		cout << "s=" << s << " ctos=" << ctos(mx) << endl;
+
+
+		map<string, map<string, set<string> > > testmap;
+		set<string> tmp;
+		tmp.insert("32324");
+
+		map<string, set<string> > mp;
+		mp["tt"] = tmp;
+
+		cout << "ttttttttt:" << (testmap.begin() == testmap.end())  << " size=" << testmap.size()<< endl;
+		testmap.find("3333333")->second;
+		cout << "ttttttttt:" << (testmap.begin() == testmap.end()) << " size=" << testmap.size() << endl;
+
+		testmap["ttt"] = mp;
+
+
+
+		cout <<	(*testmap.find("ttt")->second.find("tt")->second.find("32324")) << endl;
+
+		cout <<	"size=" << testmap.find("tttt")->second.find("ttttt")->second.size() << endl;
+
+		set<string>& yy = testmap.find("ttt")->second.find("tt")->second;
+		if(yy.end() == yy.find("32324"))
+		cout << "tttt" << endl;
+		else
+		cout << "find\n";
+	//cout <<	(*testmap.find("ttt")->second.find("ttt")->second.find("32324")) << endl;
+	//cout <<	(*testmap.find("ttt")->second.find("ttt")->second.find("3772324")) << endl;
+
+*/
+
+	//test_template();
+
+	//return 0;
+
+	//test_socket();
+
+	test_aes();
+
+	return 0;
+
+
+	for(int i=0; i<5000; i++)
+	{
+		pthread_t pid;
+		int ret  = pthread_create(&pid, NULL, test_log, NULL);
+		if(ret != 0)
+		{
+			cout << "errno=" << errno << " errmsg=" << strerror(errno) << endl;
+			continue;
+		}
+		pthread_join(pid,NULL); 
+	}
+
+	return 0;
+
+	test_log();
+	CMongodb& db = CMongodb::Instance();
+	db.Init("mongodb://127.0.0.1", "test", "iosdate");
+
+	Json::Value root, s;
+	root["age"] = 30;
+
+	root["date"] = stamp_to_isodate(time(NULL));
+	if(db.Insert(root.toStyledString())) printf("error: %d, %s, \n", __LINE__, db.GetLastErr());
+
+	root["age"] = 40;
+	root["date"] = stamp_to_isodate(time(NULL));
+	if(db.Insert(root.toStyledString())) printf("error: %d, %s, \n", __LINE__, db.GetLastErr());
+
+	db.Query("{}");
+	while(db.Next()) cout << __LINE__ << " " <<  db.GetResult() << endl;
+
+	cout << __LINE__ << " " << db.Query("{\"age\":{\"$gt\": 30}}") << endl;;
+	while(db.Next()) cout << __LINE__ << " " << db.GetResult() << endl;
+
+	root["age"] = 50;
+	s["$set"] = root;
+	cout << __LINE__ << " " << db.Update(s.toStyledString(), "{\"age\":30}", true) << endl;
+
+	cout << s.toStyledString() << endl;
+
+	db.Query("{}");
+	while(db.Next()) cout << __LINE__ << " " << db.GetResult() << endl;
+
+
+
+	return 0;
+
+}

@@ -1,0 +1,12 @@
+#编译用ctp的头文件   只是改了下名字叫thosttraderapi_rohon.15.so
+#执行时用rohon的thosttraderapi.so.23.0 替换thosttraderapi_rohon.15.so
+TARGET  := tdctp_svr
+
+LIBS    +=  -Wl,-Bstatic -L../base/ -lfuture -lctp -lsungard -lcommon -lencrypt  ${LIB_RONGHANG_TD}
+
+INCLUDE += -I./  -I../base/ -D  __ROHON__
+
+include ../../Makefile
+
+include ../Makefile.inc
+
