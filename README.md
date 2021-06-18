@@ -9,22 +9,17 @@ shell		  一些shell的工具
 
 # compile
 ```
-compile all:
-cd /home/ops/dreamy/backend/server
-make clean && make release
+cd ~/workspace/backend/base && make clean && make
+cd ~/workspace/backend/server/base && make clean && make
+cd ~/workspace/backend/server/tdctp_svr && make clean && make -f ./Makefile.619
 
-compile only one server:
-cd mdlive_svr
-make clean && make release
 ```
 
 # release
 ```
-cd /home/ops/yunwei/release
-./release_svr.sh  buid_release commit mdlive_svr
-./release_svr.sh  buid_release commit mdindex_svr
-./release_svr.sh  buid_release commit mdpast_svr
-./release_svr.sh  buid_release commit tdctp_svr fundid
+ps -ef|grep ctp|grep -v grep | awk '{print $2}' |xargs kill -9 && \cp -f ~/workspace/backend/server/tdctp_svr/tdctp_svr /opt/ctp_XIANQIANG01/ctp_XIANQIANG01 && \cp -f ~/workspace/backend/server/tdctp_svr/tdctp_svr /opt/ctp_XIANQIANG001/ctp_XIANQIANG001 && \cp -f ~/workspace/backend/server/tdctp_svr/tdctp_svr /opt/ctp_XIANQIANG002/ctp_XIANQIANG002
+
+\cp -f ~/workspace/backend/server/tdctp_svr/tdctp_svr /opt/ctp_TRISTAN/ctp_TRISTAN
 ```
 
 # release a  new fund
@@ -68,5 +63,3 @@ cd /home/ops/yunwei/release
 
 
 ```
-
-
