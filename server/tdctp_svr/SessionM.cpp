@@ -3,7 +3,7 @@
 ///@company 慧网基金
 ///@file MdSessionM.cpp
 ///@description  连接管理的类
-///@history 
+///@history
 ///20160326	dreamyzhang		创建该文件
 /////////////////////////////////////////////////////////////////////////
 
@@ -31,8 +31,8 @@ int SessionM::Init(int timeout)
 	_timer = new _Timer_Task(timeout); //超时时间
 	IceUtil::TimerPtr _t = new IceUtil::Timer();
 	_t->scheduleRepeated(_timer, IceUtil::Time::seconds(5));//5s一次检测
-	
-	return 0;	
+
+	return 0;
 }
 
 string  SessionM::print_session()
@@ -57,10 +57,10 @@ string  SessionM::print_session()
 int  SessionM::add(string key, MemInfo* info)
 {
 	Lock sync(*this);
-	
+
 	_sessions[key] = info;
 
-	LOG_INFO("add session[key:" << key << "]: " << info->show_as_json_obj());
+	// LOG_INFO("add session[key:" << key << "]: " << info->show_as_json_obj());
 	return 0;
 }
 
@@ -69,7 +69,7 @@ int  SessionM::add(string key, MemInfo* info)
 int  SessionM::remove(string key)
 {
 	Lock sync(*this);
-	
+
 	typeof(_sessions.begin()) itr =_sessions.find(key);
 	if(itr != _sessions.end())
 	{
@@ -81,28 +81,28 @@ int  SessionM::remove(string key)
 	return 0;
 }
 
-//add subcribe 
+//add subcribe
 int  SessionM::add_sub(string key, string module, string fundid)
 {
 	Lock sync(*this);
-	
-	//首先找到这个session 
+
+	//首先找到这个session
 	typeof(_sessions.begin()) itr = _sessions.find(key);
 	if(itr == _sessions.end())
 	{
 		LOG_ERROR("add subcribe fail key[" << key <<  "] not exist.");
 		return -1;	//添加订阅失败  session不存在
 	}
-	
+
 	LOG_INFO("old subcribe:" << (itr->second)->show_as_json_obj() << " add new subcribe:[" << fundid << "]");
-	
+
 	itr->second->_moduleId = module;
-	
+
 	//然后找到这个合约
 	typeof(itr->second->_sub_bit.begin()) it = itr->second->_sub_bit.find(fundid);
 	if(it == itr->second->_sub_bit.end())
 	{
-		itr->second->_sub_bit.insert(fundid); 
+		itr->second->_sub_bit.insert(fundid);
 	}
 	return 0;
 }
@@ -110,15 +110,15 @@ int  SessionM::add_sub(string key, string module, string fundid)
 bool  SessionM::check_sub(string key,  string fundid)
 {
 	Lock sync(*this);
-	
-	//首先找到这个session 
+
+	//首先找到这个session
 	typeof(_sessions.begin()) itr =  _sessions.find(key);
 	if(itr == _sessions.end())
 	{
 		return false;	//session不存在
 	}
-	
-	//然后找到这个合约 
+
+	//然后找到这个合约
 	typeof(itr->second->_sub_bit.begin()) it = itr->second->_sub_bit.find(fundid);
 	if(it != itr->second->_sub_bit.end())
 	{
@@ -132,15 +132,15 @@ bool  SessionM::check_sub(string key,  string fundid)
 int  SessionM::del_sub(string key,  string fundid)
 {
 	Lock sync(*this);
-	
-	//首先找到这个session 
+
+	//首先找到这个session
 	typeof(_sessions.begin()) itr =  _sessions.find(key);
 	if(itr == _sessions.end())
 	{
 		LOG_ERROR("del subcribe fail:key[" << key <<  "] not exist.");
 		return 0;	//删除失败  session不存在
 	}
-	
+
 	//然后找到这个合约 删除
 	typeof(itr->second->_sub_bit.begin()) it = itr->second->_sub_bit.find(fundid);
 	if(it != itr->second->_sub_bit.end())
@@ -151,9 +151,9 @@ int  SessionM::del_sub(string key,  string fundid)
 	return 0;
 }
 
-int  SessionM::refresh(string& key)	
+int  SessionM::refresh(string& key)
 {
-	Lock sync(*this);	
+	Lock sync(*this);
 	typeof(_sessions.begin()) itr =  _sessions.find(key);
 	if(itr != _sessions.end())
 	{
@@ -202,10 +202,10 @@ string SessionM::query_session(string id)
 
 string SessionM::query_current_sub(string id)
 {
-	Lock sync(*this);	
-	
+	Lock sync(*this);
+
 	//查询当前session
-	typeof(_sessions.begin()) itr = _sessions.find(id);                                      
+	typeof(_sessions.begin()) itr = _sessions.find(id);
 	if(itr != _sessions.end())
 	{
 		return itr->second->show_as_json_obj();
@@ -216,20 +216,20 @@ string SessionM::query_current_sub(string id)
 //onOrder(const ::std::string&, const ::CM::Order&, const ::Ice::Current& = ::Ice::Current()) = 0;
 int  SessionM::send_order(const ::std::string& fundid, const ::CM::Order& order)
 {
-	Lock sync(*this);	
+	Lock sync(*this);
 	map<string, MemInfo*>::iterator  itr = _sessions.begin();
 	for(; itr!=_sessions.end(); itr++)
 	{
 		MemInfo* info = itr->second;
-		
-		//检查这个session 这里只需要推送ticker 
+
+		//检查这个session 这里只需要推送ticker
 		typeof(info->_sub_bit.begin()) it = info->_sub_bit.find(fundid);
-		if(it == info->_sub_bit.end()) 
+		if(it == info->_sub_bit.end())
 		{
 			LOG_DEBUG("fundid:" << fundid << " not sub");
 			continue;
 		}
-		
+
 		try
 		{
 			//printf("TickerItem before\n");
@@ -241,13 +241,13 @@ int  SessionM::send_order(const ::std::string& fundid, const ::CM::Order& order)
 		{
 			//这里检查session看看是不是断开连接了 TODO
 			//或者由定时器来处理连接
-			
+
 			stringstream ss;
 			ss << e;
 			LOG_ERROR("[" << itr->first << "]push order	fail." << ss.str())
-		}				
+		}
 	}
-	
+
 	return 0;
 }
 
@@ -255,22 +255,22 @@ int  SessionM::send_order(const ::std::string& fundid, const ::CM::Order& order)
 //onOrder(const ::std::string&, const ::CM::Order&, const ::Ice::Current& = ::Ice::Current()) = 0;
 int  SessionM::send_done(const ::std::string& fundid, const ::CM::Done& done, const ::CM::Account& account, const ::CM::PositionList& positions)
 {
-	Lock sync(*this);	
+	Lock sync(*this);
 
 	LOG_DEBUG("_sessions.size()=" << _sessions.size());
 	map<string, MemInfo*>::iterator  itr = _sessions.begin();
 	for(; itr!=_sessions.end(); itr++)
 	{
 		MemInfo* info = itr->second;
-		
-		//检查这个session 这里只需要推送ticker 
+
+		//检查这个session 这里只需要推送ticker
 		typeof(info->_sub_bit.begin()) it = info->_sub_bit.find(fundid);
-		if(it == info->_sub_bit.end()) 
+		if(it == info->_sub_bit.end())
 		{
 			LOG_DEBUG("fundid:" << fundid << " not sub fundid.");
 			continue;
 		}
-		
+
 		try
 		{
 			//printf("TickerItem before\n");
@@ -285,30 +285,30 @@ int  SessionM::send_done(const ::std::string& fundid, const ::CM::Done& done, co
 			stringstream ss;
 			ss << e;
 			LOG_ERROR("[" << itr->first << "]push done	fail."  << ss.str())
-		}				
+		}
 	}
-	
+
 	return 0;
 }
 
 int SessionM::send_tradingday(string fundid, string tradingday)
 {
-	Lock sync(*this);	
+	Lock sync(*this);
 
 	LOG_DEBUG("_sessions.size()=" << _sessions.size());
 	map<string, MemInfo*>::iterator  itr = _sessions.begin();
 	for(; itr!=_sessions.end(); itr++)
 	{
 		MemInfo* info = itr->second;
-		
-		//检查这个session 这里只需要推送ticker 
+
+		//检查这个session 这里只需要推送ticker
 		typeof(info->_sub_bit.begin()) it = info->_sub_bit.find(fundid);
-		if(it == info->_sub_bit.end()) 
+		if(it == info->_sub_bit.end())
 		{
 			LOG_DEBUG("fundid:" << fundid << " not sub fundid.");
 			continue;
 		}
-		
+
 		try
 		{
 			info->_callback->begin_onTradingday(fundid, tradingday);
@@ -321,16 +321,9 @@ int SessionM::send_tradingday(string fundid, string tradingday)
 			stringstream ss;
 			ss << e;
 			LOG_ERROR("[" << itr->first << "]push tradingday fail."  << ss.str())
-		}				
+		}
 	}
-	
+
 	return 0;
 
 }
-
-
-
-		
-
-		
-		

@@ -1,8 +1,8 @@
 /*************************************************************************
     > File Name: holidays.cpp
     > Created Time: Thu 02 Jun 2016 10:50:23 AM CST
-    > Author: 
-    > description: 
+    > Author:
+    > description:
  ************************************************************************/
 
 #include "holidays.h"
@@ -18,7 +18,7 @@ int Holidays::Init(CMongodb& db)
 	while(db.Next())
 	{
 		char* result = db.GetResult();
-		Json::Reader reader(Json::Features::strictMode());    
+		Json::Reader reader(Json::Features::strictMode());
 		Json::Value value;
 		if(!reader.parse(result, value))
 		{
@@ -27,14 +27,14 @@ int Holidays::Init(CMongodb& db)
 		}
 		string market = value["market"].asString();
 		string st = value["timestamp"].asString(); //20160603
-	
+
 		time_t timestamp = strtostamp(st.c_str(), "%Y%m%d");
 
-		LOG_INFO("timestamp=" << timestamp << " st:" << st);
+		// LOG_INFO("timestamp=" << timestamp << " st:" << st);
 		Add(timestamp, market);
 	}
-	
-	Print();
+
+	// Print();
 
 	if(m_holidays.size() < 2)
 	{
@@ -54,7 +54,7 @@ void Holidays::Add(time_t timestamp, string market, time_t next_open_time)
 
 	list<Holiday>::iterator itr = m_holidays.begin();
 	for(; itr!=m_holidays.end(); itr++)
-	{	
+	{
 		if(itr->market == market && itr->timestamp == timestamp)
 		{
 			itr->next_open_time = next_open_time;
@@ -87,7 +87,7 @@ bool Holidays::IsHoladay(time_t timestamp, string market)
 			return true;
 		}
 	}
-	return false;	
+	return false;
 }
 
 bool Holidays::IsWeekend(time_t timestamp)
@@ -110,7 +110,7 @@ bool Holidays::IsOpenDay(time_t timestamp, string market)
 	return true;
 }
 
-//判断今天要不要开夜盘 
+//判断今天要不要开夜盘
 bool Holidays::IsOpenNight(time_t timestamp, string market)
 {
 	//日市不开肯定没夜盘
@@ -118,7 +118,7 @@ bool Holidays::IsOpenNight(time_t timestamp, string market)
 
 	//明天是节假日 今天不开夜市
 	time_t tomorrow = timestamp + 86400;
-	
+
 	if(IsHoladay(tomorrow, market)) return false;
 
 	return true;
@@ -127,7 +127,7 @@ bool Holidays::IsOpenNight(time_t timestamp, string market)
 //获取上个交易日
 time_t Holidays::GetPrevTradingDay(time_t timestamp, string market)
 {
-	int i = 1; 
+	int i = 1;
 	bool o = IsOpenDay(timestamp - 86400*i, market);
 	while(!o)
 	{
@@ -141,7 +141,7 @@ time_t Holidays::GetPrevTradingDay(time_t timestamp, string market)
 //获取下个交易日
 time_t Holidays::GetNextTradingDay(time_t timestamp, string market)
 {
-	int i = 1; 
+	int i = 1;
 	bool o = IsOpenDay(timestamp + 86400*i, market);
 	while(!o)
 	{
@@ -157,13 +157,13 @@ time_t Holidays::GetNextTradingDay(time_t timestamp, string market)
 time_t Holidays::GetTradingDay(time_t timestamp, string market)
 {
 	//今天交易  有夜市   明天交易 18点分割                     -------- 周内
-	
+
 	//今天交易  有夜市   明天不交易 夜市就是下一个交易日日期   -------- 明天是周末
-	
+
 	//今天交易  无夜市   就直接是今天                          -------- 明天是节假日
-	
+
 	//今天不交易  上个交易日无夜市就是上个交易日               -------- 节假日
-	
+
 	//今天不交易  上个交易日有夜市   就是下个交易日的日期      -------- 周末
 
 	time_t ymd  = get_ymd(timestamp); //圆整日期
@@ -180,10 +180,10 @@ time_t Holidays::GetTradingDay(time_t timestamp, string market)
 	LOG_DEBUG("open="<<open<<" opennight="<<opennight<<" tomorrow="<<tomorrow<<" buf="<<buf<<" ptm=" << mktime(&ptm) <<" timestamp="<<timestamp<<" ymd="<<ymd);
 	if(open)
 	{
-		if(!opennight) return ymd; 
+		if(!opennight) return ymd;
 
 		if(!tomorrow  && ptm.tm_hour>=21)  return GetNextTradingDay(ymd, market);
-				
+
 		if(ptm.tm_hour>=21) return ymd+86400;
 
 		return ymd;
@@ -192,9 +192,9 @@ time_t Holidays::GetTradingDay(time_t timestamp, string market)
 	{
 		time_t prev = GetPrevTradingDay(ymd, market);
 		bool prevnight = IsOpenNight(prev, market);
-		
+
 		if(prevnight) return GetNextTradingDay(ymd, market);
-		
+
 		return prev;
 	}
 
@@ -228,8 +228,3 @@ bool Holidays::IsTrading(time_t timestamp, string market)
 	}
 	return true;
 }
-
-
-
-
-

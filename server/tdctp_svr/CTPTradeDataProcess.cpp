@@ -3,7 +3,7 @@
 ///@company 慧网基金
 ///@file CTPTradeDataProcess.cpp
 ///@brief 处理交易数据  写db push下游
-///@history 
+///@history
 ///20160326	dreamyzhang		创建该文件
 /////////////////////////////////////////////////////////////////////////
 #include "CTPTradeDataProcess.h"
@@ -12,7 +12,7 @@
 
 /*
  * 重启逻辑:
- *  1. 加载fund表中子账号生成初始帐号信息 
+ *  1. 加载fund表中子账号生成初始帐号信息
  *	2. 加载所有原始数据（按交易日和帐号id）
  *	3. 原始数据缓存 转化母基金缓存
  *	4. 加载所有子账号的初始数据
@@ -24,7 +24,7 @@
  *  1. 16点了没结算 请求上游order和done
  *  2. 查询所有日k数据
  *  3. 同上面6
- *  4. 结算 
+ *  4. 结算
  *  5. 结算结果写数据库
  *
  *  原始数据入库问题
@@ -66,11 +66,11 @@ int CTPTradeDataProcess::get_append_info(string& fundid, string& tradingday, str
 	while(_db.Next())
 	{
 		try
-		{	
+		{
 			char* result = _db.GetResult();
 			Json::Reader reader;
 			Json::Value val;
-			if(!reader.parse(result, val))  
+			if(!reader.parse(result, val))
 			{
 				LOG_ERROR("REQUESTMAP reader.parse error. result:" << result);
 				return -1;
@@ -98,25 +98,25 @@ void* ReqAccountPosition(void* args)
 	{
 		//done.parentid	= "";
 		//done.seq		= doo.seq;;
-		done.strategyid	= doo.strategyid; 
+		done.strategyid	= doo.strategyid;
 		done.userid		= doo.userid;
 		done.signalname	= doo.signalname;
 	}
-	g_syncsp->local_data.add_done(done.fundid, done);                              
-	g_syncsp->local_data.updatedone(done.fundid);                              
+	g_syncsp->local_data.add_done(done.fundid, done);
+	g_syncsp->local_data.updatedone(done.fundid);
 
     //最后一个成交必须推送
 	while(g_syncsp->get_need_success_tradeid() == done.tradeid)
 	{
 		msleep(50);
-	
-		int retp =g_syncsp->ReqQryInvestorPosition();                                        
-		if(g_syncsp->WaitReq(retp) < 0) 
+
+		int retp =g_syncsp->ReqQryInvestorPosition();
+		if(g_syncsp->WaitReq(retp) < 0)
 		{
-			 LOG_ERROR("recv done to query position fail"); 
-			 continue;                   
-		} 
-        
+			 LOG_ERROR("recv done to query position fail");
+			 continue;
+		}
+
         sleep(1);
         int reta = g_syncsp->ReqQryTradingAccount();
 		if(g_syncsp->WaitReq(reta) < 0)
@@ -124,10 +124,10 @@ void* ReqAccountPosition(void* args)
 			LOG_ERROR("recv done to query account  fail");
 			continue;
 		}
-	   
-        //每个交易之后是不是要更新这个？？？？ 
-        //g_syncsp->local_data.update_option_capital(g_syncsp->map_instruments);                              
-        
+
+        //每个交易之后是不是要更新这个？？？？
+        //g_syncsp->local_data.update_option_capital(g_syncsp->map_instruments);
+
 		SessionM::Instance().send_done(done.fundid, done, g_syncsp->local_data.get_account(done.fundid), g_syncsp->local_data.get_position_vector(done.fundid));
 		//用户原始数据更新内部数据
 		g_syncsp->local_data.updatedb(done.fundid, g_syncsp->get_account(), done.tradingday, reta);
@@ -152,19 +152,19 @@ void CTPTradeDataProcess::OnRtnOrder(CThostFtdcOrderField *pOrder)
 {
 	CThostFtdcTraderSpiI::OnRtnOrder(pOrder);
 	if(NULL == pOrder) return;
-	
+
 	if(!local_data.find_account(pOrder->InvestorID)){ LOG_DEBUG("not load fundid=" <<  pOrder->InvestorID); return ; }
-	
+
 	RemoveChar(pOrder->InsertTime, ':');
 	RemoveChar(pOrder->CancelTime, ':');
-	
+
 	Json::Value root;
 	get_CThostFtdcOrderField(root,  pOrder);
-	
+
 	root["tradingday"] 	= pOrder->TradingDay;
 	root["updatedate"] =  stamp_to_isodate(time(NULL));
 	root["account"]     = get_account();
-	
+
 	Json::FastWriter fast_writer;
 	string ss = fast_writer.write(root);
 	LOG_DEBUG(ss);
@@ -182,23 +182,23 @@ void CTPTradeDataProcess::OnRtnOrder(CThostFtdcOrderField *pOrder)
 	{
 		//order.parentid		= "";
 		//order.seq			= doo.seq;
-		order.strategyid	= doo.strategyid; 
+		order.strategyid	= doo.strategyid;
 		order.userid		= doo.userid;
 		order.signalname	= doo.signalname;
 	}
-	local_data.add_order(order.fundid, order); 
+	local_data.add_order(order.fundid, order);
 	ctp_data.add_order(order.fundid, *pOrder);
-	SessionM::Instance().send_order(order.fundid, order);	
-	local_data.updateorder(order.fundid); 
-	
+	SessionM::Instance().send_order(order.fundid, order);
+	local_data.updateorder(order.fundid);
+
 	//更新子账号信息 并推送
 	if(ret == 0 && doo.fundid != order.fundid)
 	{
 		//order.parentid      = order.fundid;
 		order.fundid		= doo.fundid;
-		local_data.add_order(order.fundid, order); 
-		SessionM::Instance().send_order(order.fundid, order);	
-		local_data.updateorder(order.fundid); 
+		local_data.add_order(order.fundid, order);
+		SessionM::Instance().send_order(order.fundid, order);
+		local_data.updateorder(order.fundid);
 	}
 }
 
@@ -206,10 +206,10 @@ void CTPTradeDataProcess::OnRtnOrder(CThostFtdcOrderField *pOrder)
 void CTPTradeDataProcess::OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField *pInstrumentStatus)
 {
 	if(NULL == pInstrumentStatus) return;
-	
+
 	Json::Value root;
 	get_CThostFtdcInstrumentStatusField(root,  pInstrumentStatus);
-	
+
 	root["tradingday"] 	= tradingday;
 	root["requestid"] = 0;
 	root["updatedate"] = stamp_to_isodate(time(NULL));
@@ -228,10 +228,10 @@ void CTPTradeDataProcess::OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField 
 void CTPTradeDataProcess::OnRtnBulletin(CThostFtdcBulletinField *pBulletin)
 {
 	if(NULL == pBulletin) return;
-	
+
 	Json::Value root;
 	get_CThostFtdcBulletinField(root,  pBulletin);
-		
+
 	root["tradingday"] 	= pBulletin->TradingDay;
 	root["requestid"] = 0;
 	root["updatedate"] = stamp_to_isodate(time(NULL));
@@ -244,19 +244,19 @@ void CTPTradeDataProcess::OnRtnBulletin(CThostFtdcBulletinField *pBulletin)
 	_db.ChangeCollection("CTPBULLETIN");
 	_db.Insert(root.toStyledString());
 }
-	
+
 //成交通知
 void CTPTradeDataProcess::OnRtnTrade(CThostFtdcTradeField *pTrade)
 {
 	CThostFtdcTraderSpiI::OnRtnTrade(pTrade);
 
 	if(NULL == pTrade) return;
-	
+
 	if(!local_data.find_account(pTrade->InvestorID)){ LOG_DEBUG("not load fundid=" <<  pTrade->InvestorID); return ; }
 
 	//remove the char :
 	RemoveChar(pTrade->TradeTime, ':');
-	
+
 	Json::Value root;
 	get_CThostFtdcTradeField(root,  pTrade);
 	root["tradingday"] 	= pTrade->TradingDay;
@@ -271,9 +271,9 @@ void CTPTradeDataProcess::OnRtnTrade(CThostFtdcTradeField *pTrade)
 	CMongodb _db = CMongodb::Instance();
 	_db.ChangeCollection("CTPDONE");
 	_db.Insert(root.toStyledString());
-	
+
 	//原始数据
-	ctp_data.add_done(toa(pTrade->InvestorID), *pTrade);          
+	ctp_data.add_done(toa(pTrade->InvestorID), *pTrade);
 
 	//异步处理
 	struct CM::Done* p = new  CM::Done;
@@ -287,12 +287,12 @@ void CTPTradeDataProcess::OnRtnTrade(CThostFtdcTradeField *pTrade)
 
 void CTPTradeDataProcess::on_login()
 {
-    uint32_t c = 0;                                                                 
-    if(ReqSettlementInfoConfirm() < 0 && c++ < 10)           
-    {                                                                               
-        sleep(10);                                                                   
-        LOG_DEBUG("ReqSettlementInfoConfirm fail!");                                
-    }                                                                               
+    uint32_t c = 0;
+    if(ReqSettlementInfoConfirm() < 0 && c++ < 10)
+    {
+        sleep(10);
+        LOG_DEBUG("ReqSettlementInfoConfirm fail!");
+    }
 }
 
 void CTPTradeDataProcess::Run()
@@ -329,14 +329,14 @@ void CTPTradeDataProcess::Run()
              while(WaitReq(ReqQryOrder(), 100000) < 0) { sleep(3); LOG_DEBUG("ReqQryOrder fail!"); }
              sleep(1);
              while(WaitReq(ret1=ReqSettlementInfoConfirm(), 100000) < 0) { sleep(3); LOG_DEBUG("ReqSettlementInfoConfirm fail!"); }
-             
+
         }
    		//if(td != 0) local_data.updatedb(get_account(), toa(tradingday), ret1);
 		//if(td != 0) ctp_data.updatedb(get_account(), toa(tradingday),  ret1);
 
 		 local_data.updatedb(get_account(), toa(tradingday),  ret1, true);
 		 ctp_data.updatedb(get_account(), toa(tradingday),  ret1, true);
-	    
+
 		//重启推送tradingday
 		vector<string> fundidlist = local_data.get_fundids();
 		for(vector<string>::iterator itr=fundidlist.begin(); itr!=fundidlist.end(); itr++)
@@ -372,7 +372,7 @@ void CTPTradeDataProcess::Run()
 void* thread_run(void* p)
 {
 	CTPTradeDataProcess* ctp = (CTPTradeDataProcess*)p;
-	
+
 	//主处理线程
 	while(true)
 	{
@@ -392,7 +392,7 @@ void CTPTradeDataProcess::Init(TE_RESUME_TYPE module)
 
 	//标识他是金仕达帐号
 	account_type = "ctp";
-	
+
 	//先去数据库查询
 	uint32_t today_trade = atoll(stamptostr(g_holidays.GetTradingDay(), "%Y%m%d").c_str());
 	tradingday = today_trade;
@@ -430,9 +430,9 @@ void CTPTradeDataProcess::Init(TE_RESUME_TYPE module)
 
 	//初始化ctp
 	CThostFtdcTraderSpiI::Init(module);
-	
+
 	if(!get_InitFlag()) msleep(500);
-	
+
 	if(tradingday < 20160101) tradingday = today_trade;
 
 	LOG_INFO("g_holidays.GetTradingDay=" << today_trade <<  " tradingday=" << tradingday);
@@ -446,7 +446,7 @@ void CTPTradeDataProcess::LoadDb(const char* table, uint32_t tradingday, _functi
 	CMongodb db = CMongodb::Instance();
 	db.ChangeCollection(table);
 
-	LOG_DEBUG("table=" << table << " sql=" << q.toStyledString());
+	// LOG_DEBUG("table=" << table << " sql=" << q.toStyledString());
 	if(db.Query(q.toStyledString()) < 0)
 	{
 		LOG_ERROR("fail " << db.GetLastErr());
@@ -455,11 +455,11 @@ void CTPTradeDataProcess::LoadDb(const char* table, uint32_t tradingday, _functi
 	while(db.Next())
 	{
 		try
-		{	
+		{
 			char* result = db.GetResult();
 			Json::Reader reader;
 			Json::Value val;
-			if(!reader.parse(result, val))  
+			if(!reader.parse(result, val))
 			{
 				LOG_ERROR("reader.parse error. result:" << result);
 				continue;
@@ -490,7 +490,7 @@ void CTPTradeDataProcess::LoadInstrument(Json::Value& root)
     CThostFtdcInstrumentField ins;
     get_CThostFtdcInstrumentField_Struct(root, &ins);
     map_instruments[ins.InstrumentID] = ins;
-    LOG_INFO("LoadInstrument " << ins.InstrumentID  << " length:" << map_instruments.size());
+    // LOG_INFO("LoadInstrument " << ins.InstrumentID  << " length:" << map_instruments.size());
 }
 
 void CTPTradeDataProcess::LoadVirtualFund(Json::Value& root)
@@ -503,13 +503,13 @@ void CTPTradeDataProcess::LoadVirtualFund(Json::Value& root)
 	//int	   sequence		= root["sequence"].asInt();
 	//由上面生成account信息
 	struct CM::Account  account;
-	account.tradingday		= toa(tradingday);    
+	account.tradingday		= toa(tradingday);
 	account.fundid			= root["fundid"].asString();
 	account.parentid		= parentid;
 	account.prebalance		= 0;
-	account.premargin		= 0;   
+	account.premargin		= 0;
 	account.requestid		= "";
-	account.balance			= 0; 
+	account.balance			= 0;
 	account.available		= equity;
 	account.margin			= 0;
 	account.incap			= 0;
@@ -536,12 +536,12 @@ void CTPTradeDataProcess::LoadAccount(Json::Value& root)
 	}
 
 	CThostFtdcTradingAccountField ctpaccount;
-	get_CThostFtdcTradingAccountField_Struct(root, &ctpaccount);	
+	get_CThostFtdcTradingAccountField_Struct(root, &ctpaccount);
 	ctp_data.add_account(toa(ctpaccount.AccountID), ctpaccount);
 
-	struct CM::Account  account;                  
+	struct CM::Account  account;
 	account.tradingday = root["tradingday"].asString();
-	account.requestid  = root["requestid"].asString();             
+	account.requestid  = root["requestid"].asString();
     convert_ctp_account(&account, &ctpaccount);
 	local_data.add_account(account.fundid, account);
     LOG_INFO("init real account=" <<  account.fundid << " ctp_data size=" << ctp_data.get_account_vector().size() << " local_data size=" << local_data.get_account_vector().size());
@@ -549,20 +549,20 @@ void CTPTradeDataProcess::LoadAccount(Json::Value& root)
 
 void CTPTradeDataProcess::LoadPosition(Json::Value& root)
 {
-	CThostFtdcInvestorPositionField ctpposition;	
-	get_CThostFtdcInvestorPositionField_Struct(root, &ctpposition);	
+	CThostFtdcInvestorPositionField ctpposition;
+	get_CThostFtdcInvestorPositionField_Struct(root, &ctpposition);
 	ctp_data.add_position(toa(ctpposition.InvestorID), ctpposition);
-	
-	struct CM::Position  position;                    
-	position.tradingday = root["tradingday"].asString(); 
+
+	struct CM::Position  position;
+	position.tradingday = root["tradingday"].asString();
 	position.requestid =  root["requestid"].asString();
 	#ifndef  __ROHON__
-	    convert_ctp_position(&position, &ctpposition, get_todayopenaverage_ctp(&ctpposition));        
+	    convert_ctp_position(&position, &ctpposition, get_todayopenaverage_ctp(&ctpposition));
     #else
-        convert_ctp_position(&position, &ctpposition, get_todayopenaverage_rohon(&ctpposition));        
+        convert_ctp_position(&position, &ctpposition, get_todayopenaverage_rohon(&ctpposition));
     #endif
 	local_data.add_position(position.fundid, position);
-	
+
 	LOG_INFO("init position account=" <<  position.fundid << " ctp_data size=" << ctp_data.get_position_vector(position.fundid).size() << " local_data size=" << local_data.get_position_vector(position.fundid).size());
 }
 
@@ -576,21 +576,21 @@ void CTPTradeDataProcess::LoadDone(Json::Value& root)
 	done.tradingday = root["tradingday"].asString();
 	convert_ctp_done(&done, &ctpdone);
 	local_data.add_done(done.fundid, done);
-	
+
 	LOG_INFO("init done account=" <<  done.fundid << " ctp_data size=" << ctp_data.get_done_vector(done.fundid).size() << " local_data size=" << local_data.get_done_vector(done.fundid).size());
 }
 
 void CTPTradeDataProcess::LoadOrder(Json::Value& root)
 {
 	CThostFtdcOrderField ctporder;
-	get_CThostFtdcOrderField_Struct(root, &ctporder);	
+	get_CThostFtdcOrderField_Struct(root, &ctporder);
 	ctp_data.add_order(toa(ctporder.InvestorID), ctporder);
 
 	struct CM::Order     order;
 	order.tradingday = root["tradingday"].asString();
 	convert_ctp_order(&order, &ctporder);
 	local_data.add_order(order.fundid, order);
-	
+
 	LOG_INFO("init order account=" <<  order.fundid << " ctp_data size=" << ctp_data.get_order_vector(order.fundid).size() << " local_data size=" << local_data.get_order_vector(order.fundid).size());
 }
 
@@ -601,13 +601,6 @@ void CTPTradeDataProcess::LoadDayBar(Json::Value& root)
 	if(!root["instrument"].isNull())
 	{
 		string instrumentid = root["instrument"].asString();
-		map_daybar[instrumentid] = daybar;	
+		map_daybar[instrumentid] = daybar;
 	}
 }
-
-
-
-
-
-
-
