@@ -3,7 +3,7 @@
 ///@company 汇海基金
 ///@file ThostFtdcMdApiSpiI.cpp
 ///@brief 定义了客户端接口
-///@history 
+///@history
 ///20160326	dreamyzhang		创建该文件
 /////////////////////////////////////////////////////////////////////////
 #include "ThostFtdcMdSpiI.h"
@@ -51,7 +51,7 @@ CThostFtdcMdSpiI::CThostFtdcMdSpiI(CThostFtdcMdApi* pMdApi, string BrokenID, str
 		InstrumnetIds[i] = new char[len+1];
 		memset(InstrumnetIds[i], 0, len+1);
 		strncpy(InstrumnetIds[i], id.c_str(), len);
-		
+
 		LOG_DEBUG("InstrumnetIds[" << i << "]: " << InstrumnetIds[i]);
 	}
 
@@ -78,11 +78,11 @@ void CThostFtdcMdSpiI::ChangeSubcribe(set<string> InsIds)
 		InstrumnetIds[i] = new char[len+1];
 		memset(InstrumnetIds[i], 0, len+1);
 		strncpy(InstrumnetIds[i], id.c_str(), len);
-		
+
 		LOG_DEBUG("InstrumnetIds[" << i << "]: " << InstrumnetIds[i]);
 	}
 	int result = _pMdApi->SubscribeMarketData(InstrumnetIds, insCount);
-	if(result < 0)		
+	if(result < 0)
 		LOG_ERROR("SubscribeMarketData executed Error. result:" <<  result);
 }
 
@@ -95,7 +95,7 @@ void CThostFtdcMdSpiI::OnFrontConnected()
 	ReqUserLogin(&userLoginField, loginid);
 	//LOG_DEBUG("logon the CTP md server. loginid:" << loginid << " user=" << userLoginField.UserID);
 }
-		
+
 void CThostFtdcMdSpiI::OnFrontDisconnected(int nReason)
 {
 	LOG_DEBUG("OnFrontDisconnected executed[" << nReason << "]" << OnFrontDisconnected_Text(nReason));
@@ -106,7 +106,7 @@ void CThostFtdcMdSpiI::OnHeartBeatWarning(int nTimeLapse)
 	LOG_DEBUG("OnHeartBeatWarning executed timespan:" << nTimeLapse);
 }
 
-void CThostFtdcMdSpiI::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
+void CThostFtdcMdSpiI::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	struct tm tmp = {0};
 	time_t now = time(NULL);
@@ -117,19 +117,19 @@ void CThostFtdcMdSpiI::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin
     GBK2UTF8(pRspInfo->ErrorMsg, strlen(pRspInfo->ErrorMsg), ErrorMsg, sizeof(ErrorMsg));
     char UserID[16];
     GBK2UTF8(pRspUserLogin->UserID, strlen(pRspUserLogin->UserID), UserID, sizeof(UserID));
-	
+
 	//判断登录是否成功 失败告警 （继续登录）
-	if (pRspInfo->ErrorID == 0) 
+	if (pRspInfo->ErrorID == 0)
 	{
         LOG_DEBUG("OnRspUserLogin executed. nRequestID:" << nRequestID << ", UserID:"<< UserID << ", ErrorMsg:" << ErrorMsg);
         //sem_post(&sem);
-    } 
-	else 
+    }
+	else
 	{
         LOG_ERROR("OnRspUserLogin executed Error. nRequestID:" << nRequestID << ", UserID:"<< UserID << ", ErrorMsg:" << ErrorMsg);
 		//登录失败再次请求登录
 		int loginid = getRequestId();
-		ReqUserLogin(&userLoginField, loginid); 
+		ReqUserLogin(&userLoginField, loginid);
 		//LOG_DEBUG("retry logon the CTP md server. loginid:" << loginid);
 		return;
     }
@@ -169,7 +169,7 @@ void CThostFtdcMdSpiI::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin
     if(DiffDCETime + local == 0) DiffDCETime = 0;
     if(DiffCZCETime + local == 0) DiffCZCETime = 0;
     if(DiffFFEXTime + local == 0) DiffFFEXTime = 0;
-	
+
     LOG_INFO("DiffSHFE="<<DiffSHFETime<<" DiffDCE="<<DiffDCETime<<" DiffCZCE="<<DiffCZCETime<<" DiffFFEX="<<DiffFFEXTime<<" local:"<<local);
 
 	//登录成功 订阅市场数据
@@ -182,7 +182,7 @@ void CThostFtdcMdSpiI::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin
 
 }
 
-void CThostFtdcMdSpiI::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
+void CThostFtdcMdSpiI::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	char ErrorMsg[243];
     GBK2UTF8(pRspInfo->ErrorMsg, strlen(pRspInfo->ErrorMsg), ErrorMsg, sizeof(ErrorMsg));
@@ -193,7 +193,7 @@ void CThostFtdcMdSpiI::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, C
     //sem_post(&sem);
 }
 
-void CThostFtdcMdSpiI::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
+void CThostFtdcMdSpiI::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	char ErrorMsg[243];
     GBK2UTF8(pRspInfo->ErrorMsg, strlen(pRspInfo->ErrorMsg), ErrorMsg, sizeof(ErrorMsg));
@@ -201,14 +201,14 @@ void CThostFtdcMdSpiI::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequest
     //sem_post(&sem);
 }
 
-void CThostFtdcMdSpiI::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
+void CThostFtdcMdSpiI::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	char ErrorMsg[243];
     GBK2UTF8(pRspInfo->ErrorMsg, strlen(pRspInfo->ErrorMsg), ErrorMsg, sizeof(ErrorMsg));
     char InstrumentID[16];
     GBK2UTF8(pSpecificInstrument->InstrumentID, strlen(pSpecificInstrument->InstrumentID), InstrumentID, sizeof(InstrumentID));
 
-	if (pRspInfo->ErrorID == 0) 
+	if (pRspInfo->ErrorID == 0)
 	{
 		LOG_DEBUG("OnRspSubMarketData executed. nRequestID:" << nRequestID << ", InstrumentID:"<< InstrumentID << ", ErrorMsg:" << ErrorMsg);
     }
@@ -226,14 +226,14 @@ void CThostFtdcMdSpiI::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSp
     //sem_post(&sem);
 }
 
-void CThostFtdcMdSpiI::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
+void CThostFtdcMdSpiI::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	char ErrorMsg[243];
     GBK2UTF8(pRspInfo->ErrorMsg, strlen(pRspInfo->ErrorMsg), ErrorMsg, sizeof(ErrorMsg));
     char InstrumentID[16];
     GBK2UTF8(pSpecificInstrument->InstrumentID, strlen(pSpecificInstrument->InstrumentID), InstrumentID, sizeof(InstrumentID));
 
-	if (pRspInfo->ErrorID == 0) 
+	if (pRspInfo->ErrorID == 0)
 	{
 		LOG_DEBUG("OnRspUnSubMarketData executed. nRequestID:" << nRequestID << ", InstrumentID:"<< InstrumentID << ", ErrorMsg:" << ErrorMsg);
     }
@@ -245,12 +245,12 @@ void CThostFtdcMdSpiI::OnRspUnSubMarketData(CThostFtdcSpecificInstrumentField *p
     //sem_post(&sem);
 }
 
-void CThostFtdcMdSpiI::OnRspSubForQuoteRsp(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
+void CThostFtdcMdSpiI::OnRspSubForQuoteRsp(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	//做市商用到的
 }
 
-void CThostFtdcMdSpiI::OnRspUnSubForQuoteRsp(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
+void CThostFtdcMdSpiI::OnRspUnSubForQuoteRsp(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	//做市商用到的
 }
@@ -260,50 +260,50 @@ void CheckData(CThostFtdcDepthMarketDataField* pDepthMarketData)
 
 #define IsValidDouble(value) if((value)<0 || (value)>1000000000000) value = 0; //0-------10000亿
 #define IsValidInt(value) if((value)<0 || (value)>2100000000) value = 0; //0-------21亿
-		//pDepthMarketData->TradingDay          
-		//pDepthMarketData->InstrumentID        
-		//pDepthMarketData->ExchangeID          
-		//pDepthMarketData->ExchangeInstID      
-		IsValidDouble(pDepthMarketData->LastPrice);          
-		IsValidDouble(pDepthMarketData->PreSettlementPrice);  
-		IsValidDouble(pDepthMarketData->PreClosePrice);       
-		IsValidDouble(pDepthMarketData->PreOpenInterest);     
-		IsValidDouble(pDepthMarketData->OpenPrice);           
-		IsValidDouble(pDepthMarketData->HighestPrice);        
-		IsValidDouble(pDepthMarketData->LowestPrice);         
-		IsValidInt(pDepthMarketData->Volume);              
-		IsValidDouble(pDepthMarketData->Turnover);       
-		IsValidDouble(pDepthMarketData->OpenInterest);        
-		IsValidDouble(pDepthMarketData->ClosePrice);        
-		IsValidDouble(pDepthMarketData->SettlementPrice);  
-		IsValidDouble(pDepthMarketData->UpperLimitPrice);   
-		IsValidDouble(pDepthMarketData->LowerLimitPrice);   
-		IsValidDouble(pDepthMarketData->PreDelta);   
-		IsValidDouble(pDepthMarketData->CurrDelta);          
-		//pDepthMarketData->UpdateTime          
-		//pDepthMarketData->UpdateMillisec      
-		IsValidDouble(pDepthMarketData->BidPrice1);    
-		IsValidInt(pDepthMarketData->BidVolume1);         
-		IsValidDouble(pDepthMarketData->AskPrice1);        
-		IsValidInt(pDepthMarketData->AskVolume1);         
-		IsValidDouble(pDepthMarketData->BidPrice2 );          
-		IsValidInt(pDepthMarketData->BidVolume2);          
-		IsValidDouble(pDepthMarketData->AskPrice2 );          
-		IsValidInt(pDepthMarketData->AskVolume2);          
-		IsValidDouble(pDepthMarketData->BidPrice3 );          
-		IsValidInt(pDepthMarketData->BidVolume3);          
-		IsValidDouble(pDepthMarketData->AskPrice3 );          
-		IsValidInt(pDepthMarketData->AskVolume3);          
-		IsValidDouble(pDepthMarketData->BidPrice4 );          
-		IsValidInt(pDepthMarketData->BidVolume4);          
-		IsValidDouble(pDepthMarketData->AskPrice4 );          
-		IsValidInt(pDepthMarketData->AskVolume4);          
-		IsValidDouble(pDepthMarketData->BidPrice5 );          
-		IsValidInt(pDepthMarketData->BidVolume5);          
-		IsValidDouble(pDepthMarketData->AskPrice5 );          
-		IsValidInt(pDepthMarketData->AskVolume5);          
-		IsValidDouble(pDepthMarketData->AveragePrice);        
-		//pDepthMarketData->ActionDay				
+		//pDepthMarketData->TradingDay
+		//pDepthMarketData->InstrumentID
+		//pDepthMarketData->ExchangeID
+		//pDepthMarketData->ExchangeInstID
+		IsValidDouble(pDepthMarketData->LastPrice);
+		IsValidDouble(pDepthMarketData->PreSettlementPrice);
+		IsValidDouble(pDepthMarketData->PreClosePrice);
+		IsValidDouble(pDepthMarketData->PreOpenInterest);
+		IsValidDouble(pDepthMarketData->OpenPrice);
+		IsValidDouble(pDepthMarketData->HighestPrice);
+		IsValidDouble(pDepthMarketData->LowestPrice);
+		IsValidInt(pDepthMarketData->Volume);
+		IsValidDouble(pDepthMarketData->Turnover);
+		IsValidDouble(pDepthMarketData->OpenInterest);
+		IsValidDouble(pDepthMarketData->ClosePrice);
+		IsValidDouble(pDepthMarketData->SettlementPrice);
+		IsValidDouble(pDepthMarketData->UpperLimitPrice);
+		IsValidDouble(pDepthMarketData->LowerLimitPrice);
+		IsValidDouble(pDepthMarketData->PreDelta);
+		IsValidDouble(pDepthMarketData->CurrDelta);
+		//pDepthMarketData->UpdateTime
+		//pDepthMarketData->UpdateMillisec
+		IsValidDouble(pDepthMarketData->BidPrice1);
+		IsValidInt(pDepthMarketData->BidVolume1);
+		IsValidDouble(pDepthMarketData->AskPrice1);
+		IsValidInt(pDepthMarketData->AskVolume1);
+		IsValidDouble(pDepthMarketData->BidPrice2 );
+		IsValidInt(pDepthMarketData->BidVolume2);
+		IsValidDouble(pDepthMarketData->AskPrice2 );
+		IsValidInt(pDepthMarketData->AskVolume2);
+		IsValidDouble(pDepthMarketData->BidPrice3 );
+		IsValidInt(pDepthMarketData->BidVolume3);
+		IsValidDouble(pDepthMarketData->AskPrice3 );
+		IsValidInt(pDepthMarketData->AskVolume3);
+		IsValidDouble(pDepthMarketData->BidPrice4 );
+		IsValidInt(pDepthMarketData->BidVolume4);
+		IsValidDouble(pDepthMarketData->AskPrice4 );
+		IsValidInt(pDepthMarketData->AskVolume4);
+		IsValidDouble(pDepthMarketData->BidPrice5 );
+		IsValidInt(pDepthMarketData->BidVolume5);
+		IsValidDouble(pDepthMarketData->AskPrice5 );
+		IsValidInt(pDepthMarketData->AskVolume5);
+		IsValidDouble(pDepthMarketData->AveragePrice);
+		//pDepthMarketData->ActionDay
 }
 
 /*
@@ -330,11 +330,11 @@ void preprocess(CThostFtdcDepthMarketDataField* pDepthMarketData)
     if(pDepthMarketData->OpenPrice < 0.001)
     {
         double p = 0;
-        if(pDepthMarketData->PreClosePrice > 0.001) 
+        if(pDepthMarketData->PreClosePrice > 0.001)
             p = pDepthMarketData->PreClosePrice;
-        else if(pDepthMarketData->PreSettlementPrice > 0.001) 
+        else if(pDepthMarketData->PreSettlementPrice > 0.001)
             p = pDepthMarketData->PreSettlementPrice;
-        else 
+        else
             p = pDepthMarketData->LastPrice;
         pDepthMarketData->OpenPrice    = p;
         pDepthMarketData->HighestPrice = p;
@@ -342,31 +342,31 @@ void preprocess(CThostFtdcDepthMarketDataField* pDepthMarketData)
     }
 }
 
-void CThostFtdcMdSpiI::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData) 
+void CThostFtdcMdSpiI::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
     // 如果有返回结果读取返回信息
-    if ( pDepthMarketData  != NULL ) 
+    if ( pDepthMarketData  != NULL )
 	{
 		CheckData(pDepthMarketData);
-        
+
         preprocess(pDepthMarketData);
-		
+
         //LOG_MD_INFO(pDepthMarketData);
-		
-		static int num = 0;
-		if(num++ % 1000 == 0) LOG_INFO("write pDepthMarketData.");
-		
+
+		// static int num = 0;
+		// if(num++ % 1000 == 0) LOG_INFO("write pDepthMarketData.");
+
 		if(_Fun != NULL)
 		{
 			//几家交易所的夜市 tradingday和actionday不一致 这里统一
 			snprintf(pDepthMarketData->TradingDay,  sizeof(pDepthMarketData->TradingDay), "%s", GetTradingDay());
-		
+
 			string TradingDay = pDepthMarketData->TradingDay;
 			string ActionDay = pDepthMarketData->ActionDay;
 
 			//夜盘的ActionDay要自己确定 因为交易所的不对 09:51:19
 			if(pDepthMarketData->UpdateTime[0] == '2') //20--24点以后夜市 ActionDay是当天。
-				snprintf(pDepthMarketData->ActionDay, sizeof(pDepthMarketData->ActionDay), "%s", stamptostr(time(NULL)-3600 * 5, "%Y%m%d").c_str()); 
+				snprintf(pDepthMarketData->ActionDay, sizeof(pDepthMarketData->ActionDay), "%s", stamptostr(time(NULL)-3600 * 5, "%Y%m%d").c_str());
 			else if(pDepthMarketData->UpdateTime[0] == '0' && pDepthMarketData->UpdateTime[1]>='0' && pDepthMarketData->UpdateTime[1]<'3') //0--3点之间
 				snprintf(pDepthMarketData->ActionDay, sizeof(pDepthMarketData->ActionDay), "%s", stamptostr(time(NULL)+3600, "%Y%m%d").c_str());
 			else	//其余时间
@@ -394,7 +394,7 @@ void CThostFtdcMdSpiI::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDep
 //	memset(pDepthMarketData, 0, sizeof(CThostFtdcDepthMarketDataField));
 }
 
-void CThostFtdcMdSpiI::OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *pForQuoteRsp) 
+void CThostFtdcMdSpiI::OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *pForQuoteRsp)
 {
 	//询价通知 做市商用到
 }
@@ -447,8 +447,3 @@ void CThostFtdcMdSpiI::LOG_MD_INFO(CThostFtdcDepthMarketDataField* pDepthMarketD
 		"AveragePrice      : " << pDepthMarketData->AveragePrice        << "\n\t" <<
 		"ActionDay         : " << pDepthMarketData->ActionDay);
 }
-
-
-
-
-
