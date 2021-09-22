@@ -45,7 +45,7 @@ int TimeSerise::Init(CMongodb& db)
             t.e = t2seconds(a[i][1].asString(), "%H:%M:%S");
             t.t = stoenum(a[i][2].asString());
             v.push_back(t);
-            LOG_INFO("s="<<t.s<<"---"<<second2ts(t.s)<<" e="<<t.e<<"---"<<second2ts(t.e)<<" t="<<t.t<<"---"<<a[i][2].asString());
+            // LOG_INFO("s="<<t.s<<"---"<<second2ts(t.s)<<" e="<<t.e<<"---"<<second2ts(t.e)<<" t="<<t.t<<"---"<<a[i][2].asString());
         }
 	    m_MapTimeTables[id] = v;
     }
@@ -68,7 +68,7 @@ int TimeSerise::Init(CMongodb& db)
         {
             uint64_t k = stoint64(a[i].asString().c_str());
             m_MapTimeTablesId[k] = id;
-            LOG_INFO("k="<<k<<" v="<<id<<" symbol="<<string(int64tos(k)));
+            // LOG_INFO("k="<<k<<" v="<<id<<" symbol="<<string(int64tos(k)));
         }
     }
     return 0;
