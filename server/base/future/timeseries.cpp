@@ -1,8 +1,8 @@
 /*************************************************************************
     > File Name: timeseries.cpp
-    > Created Time: jeu. 09 fÃ©vr. 2017 17:23:05 CST
-    > Author: 
-    > description: 
+    > Created Time: jeu. 09 fèŒ…vr. 2017 17:23:05 CST
+    > Author:
+    > description:
  ************************************************************************/
 
 #include "timeseries.h"
@@ -22,13 +22,13 @@ TimeSerise::~TimeSerise()
 
 int TimeSerise::Init(CMongodb& db)
 {
-    //¼ÓÔØÊı¾İ¿âÊı¾İ
+    //åŠ è½½æ•°æ®åº“æ•°æ®
     db.ChangeCollection("TIMETABLE");
-	db.Query("{}"); //²éÑ¯ËùÓĞµÄ½Ú¼ÙÈÕ
+	db.Query("{}"); //æŸ¥è¯¢æ‰€æœ‰çš„èŠ‚å‡æ—¥
 	while(db.Next())
 	{
 		char* result = db.GetResult();
-		Json::Reader reader(Json::Features::strictMode());    
+		Json::Reader reader(Json::Features::strictMode());
 		Json::Value value;
 		if(!reader.parse(result, value))
 		{
@@ -51,11 +51,11 @@ int TimeSerise::Init(CMongodb& db)
     }
 
     db.ChangeCollection("TIMETABLEMAP");
-	db.Query("{}"); //²éÑ¯ËùÓĞµÄ½Ú¼ÙÈÕ
+	db.Query("{}"); //æŸ¥è¯¢æ‰€æœ‰çš„èŠ‚å‡æ—¥
 	while(db.Next())
 	{
 		char* result = db.GetResult();
-		Json::Reader reader(Json::Features::strictMode());    
+		Json::Reader reader(Json::Features::strictMode());
 		Json::Value value;
 		if(!reader.parse(result, value))
 		{
@@ -82,14 +82,14 @@ _type_timeserise* TimeSerise::GetSeriesByTradingday(char* symbol, time_t trading
     map<uint64_t, _type_timeserise >::iterator itrt =  m_SeriseTables.find(id+tradingday);
     if(itrt != m_SeriseTables.end())
     {
-        return &itrt->second; 
+        return &itrt->second;
     }
 
     _type_timetables* tb = GetTimeTables(symbol);
     if(tb == NULL) return NULL;
-    
+
     _type_timeserise  as;
-    _type_timetables::iterator itr = tb->begin(); 
+    _type_timetables::iterator itr = tb->begin();
     for(; itr!=tb->end(); itr++)
     {
         if(itr->t != night)
@@ -98,7 +98,7 @@ _type_timeserise* TimeSerise::GetSeriesByTradingday(char* symbol, time_t trading
                 ProductSerise(as, tradingday, itr->s, itr->e, 0);
             else
                 ProductSerise(as, tradingday, itr->s, itr->e);
-            continue;  
+            continue;
         }
         time_t pretradingday = m_Holidays->GetPrevTradingDay(tradingday);
         if(!m_Holidays->IsOpenNight(pretradingday)) continue;
@@ -120,17 +120,17 @@ bool  compare_klinekey (const klinekey&  t, const klinekey& k)
     return t.key < k.key;
 }
 
-//¶ş·ÖËÑË÷
+//äºŒåˆ†æœç´¢
 int32_t TimeSerise::GetPosition(_type_timeserise& data, time_t t)
 {
     klinekey k;
     k.key =t;
-    //Ğ¡ÓÚµÚÒ»¸ö·µ»ØÎ»ÖÃ0   ´óÓÚ×îºóÒ»¸ö·µ»Ø×îºóÒ»¸öÎ»ÖÃ+1
+    //å°äºç¬¬ä¸€ä¸ªè¿”å›ä½ç½®0   å¤§äºæœ€åä¸€ä¸ªè¿”å›æœ€åä¸€ä¸ªä½ç½®+1
     typeof(data.begin()) itr = lower_bound(data.begin(), data.end(), k, compare_klinekey);
-    return itr - data.begin();  //·µ»Ø0¾ÍÊÇµ±ÌìµÚÒ»¸ö 
+    return itr - data.begin();  //è¿”å›0å°±æ˜¯å½“å¤©ç¬¬ä¸€ä¸ª
 }
 
-//ÍíÉÏÀ´µÄÊı¾İ ºÍ °×ÌìÀ´µÄÊı¾İ
+//æ™šä¸Šæ¥çš„æ•°æ® å’Œ ç™½å¤©æ¥çš„æ•°æ®
 time_t TimeSerise::GetSeriseKey(char* symbol, uint32_t period, time_t tradingday, time_t t, time_t& beforet)
 {
     if(!m_Holidays->IsOpenDay(tradingday)) return 0;
@@ -143,35 +143,35 @@ time_t TimeSerise::GetSeriseKey(char* symbol, uint32_t period, time_t tradingday
     _type_timeserise& data = *pdata;
 
     uint32_t pos = GetPosition(data, t);
-    //15µãÓ¦¸Ã·µ»ØÕûµã
-    //·µ»Ø×îºóÒ»¸ö×î´óµÄÊı¾İ
+    //15ç‚¹åº”è¯¥è¿”å›æ•´ç‚¹
+    //è¿”å›æœ€åä¸€ä¸ªæœ€å¤§çš„æ•°æ®
     if(pos == data.size())
     {
         beforet = -1;
         //cout << "symbol=" << symbol << " period=" << period << " tradingday=" << tradingday  << " k=" << data[data.size()-1].key << " k2=" << data[data.size()-1].key +  period*60 << endl;
-        //×îºóÒ»¸öÍÆËÍ 14:59:59---15:00:00  ÔÚ15:00:04µÄÊ±ºòÍÆËÍ
-        if(t >= data[pos-1].key + 60) //t>15:00:00 »òÕß15:15:15µÄÊ±ºòÍÆËÍ
+        //æœ€åä¸€ä¸ªæ¨é€ 14:59:59---15:00:00  åœ¨15:00:04çš„æ—¶å€™æ¨é€
+        if(t >= data[pos-1].key + 60) //t>15:00:00 æˆ–è€…15:15:15çš„æ—¶å€™æ¨é€
         {
             uint32_t p = pos - pos % period;
             if(pos % period == 0) p = pos - period;
             //cout << "pos=" << pos << " pos%=" << pos % period << " key=" << data[p].key << " p=" << p << " size=" << data.size() << endl;
-            beforet = data[p].key; 
-            return  -1; //ÍÆËÍ×îºóÒ»¸ö
+            beforet = data[p].key;
+            return  -1; //æ¨é€æœ€åä¸€ä¸ª
         }
-        return -1; 
+        return -1;
     }
-    //ÖÜÆÚÆğ³ö
+    //å‘¨æœŸèµ·å‡º
     int i = (pos / period) * period;
     if(i == 0) return data[0].key;
 
     int b = i - period;
 
     beforet = data[b].key;
-    
+
     //b ---> i-1
-    if(data[b].type == 0 && data[i-1].type == 0) beforet = 0;   //²»ÓÃÍÆËÍµÄ
-   
-    return data[i].key; 
+    if(data[b].type == 0 && data[i-1].type == 0) beforet = 0;   //ä¸ç”¨æ¨é€çš„
+
+    return data[i].key;
 }
 
 _type_timeserise& TimeSerise::ProductSerise(_type_timeserise& as, time_t actionday, uint32_t s, uint32_t e, uint8_t t)
@@ -195,10 +195,10 @@ _type_timeserise TimeSerise::GetPeriodSeriesByTradingday(char* symbol, uint32_t 
     time_t ymd = get_ymd(tradingday);
     _type_timeserise ts;
     _type_timeserise* pdata = GetSeriesByTradingday(symbol, ymd);
-    if(pdata == NULL) 
+    if(pdata == NULL)
     {
         //ERROR
-        return ts; 
+        return ts;
     }
     _type_timeserise& data = *pdata;
     uint32_t i = 0;
@@ -249,12 +249,12 @@ bool TimeSerise::isTrading(char* product, time_t t, uint32_t close_delay)
 {
 
     _type_timetables* p = GetTimeTables(product);
-    if(p == NULL) 
+    if(p == NULL)
     {
         LOG_ERROR("get tradetime table fail. product=" << product);
         return true;
     }
-    
+
     uint32_t s = st2seconds(t);
     _type_timetables::iterator itr = (p->begin());
     for(; itr!=p->end(); itr++)
@@ -265,40 +265,40 @@ bool TimeSerise::isTrading(char* product, time_t t, uint32_t close_delay)
         }
 
         //LOG_INFO("product=" << product << " s =" << itr->s << " e=" << itr->e << " s="<<s << " t=" << t);
-       
-        //ÏÂÎçÊÕÅÌÑÓ³Ù5sÊÕÅÌ
+
+        //ä¸‹åˆæ”¶ç›˜å»¶è¿Ÿ5sæ”¶ç›˜
         uint32_t e=itr->e;
         if(itr->t == afternoon) e = itr->e + close_delay;
-        
+
         if(s >= itr->s && s < e)
         {
             if(itr->t == stop_kline_only) return false;
             return true;
         }
     }
-    LOG_INFO(product << "  " << t);
+    // LOG_INFO(product << "  " << t);
     return false;
 }
 
 
-//Ïû³ıÃ¿´Î¿ªÅÌ ÊÕÅÌÇ°µÄ½»Ò×ËùĞĞÇéÊ±¼ä²»¶ÔµÄÎÊÌâ
+//æ¶ˆé™¤æ¯æ¬¡å¼€ç›˜ æ”¶ç›˜å‰çš„äº¤æ˜“æ‰€è¡Œæƒ…æ—¶é—´ä¸å¯¹çš„é—®é¢˜
 uint32_t TimeSerise::modify_open_close_timestamp(char* product, uint32_t timestamp)
 {
     _type_timetables* p = GetTimeTables(product);
-    if(p == NULL) 
+    if(p == NULL)
     {
         LOG_ERROR("get tradetime table fail. product=" << product);
         return timestamp;
     }
-    
+
     uint32_t s = st2seconds(timestamp);
     _type_timetables::iterator itr = (p->begin());
     for(; itr!=p->end(); itr++)
     {
         if(itr->t == stop_kline_only) continue;
         uint32_t t = 0;
-        if(itr->s-s <= 60 && itr->s-s > 0) t = timestamp + 60; //¹æÕûµ½¿ªÅÌÊ±¼ä
-        if(s-itr->e <= 60 && s-itr->e >= 0) t =  timestamp - 60; //¹æÕûµ½ÊÕÅÌÊ±¼ä
+        if(itr->s-s <= 60 && itr->s-s > 0) t = timestamp + 60; //è§„æ•´åˆ°å¼€ç›˜æ—¶é—´
+        if(s-itr->e <= 60 && s-itr->e >= 0) t =  timestamp - 60; //è§„æ•´åˆ°æ”¶ç›˜æ—¶é—´
         if(t > 0)
         {
             LOG_INFO(product << " timestamp modify: " << timestamp << "-------->" << t);
@@ -307,7 +307,3 @@ uint32_t TimeSerise::modify_open_close_timestamp(char* product, uint32_t timesta
     }
     return timestamp;
 }
-
-
-
-

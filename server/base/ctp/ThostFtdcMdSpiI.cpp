@@ -373,9 +373,9 @@ void CThostFtdcMdSpiI::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDep
 				snprintf(pDepthMarketData->ActionDay,  sizeof(pDepthMarketData->ActionDay), "%s", GetTradingDay());
 
 
-            static int count =0;
-            if(count++ % 10000 == 0)
-				LOG_INFO("InstrumentID=" << pDepthMarketData->InstrumentID << " TradingDay=" << TradingDay << ":" << pDepthMarketData->TradingDay << " ActionDay=" << ActionDay << ":" << pDepthMarketData->ActionDay << " Time=" << pDepthMarketData->UpdateTime << " Millisec=" << pDepthMarketData->UpdateMillisec);
+        //     static int count =0;
+        //     if(count++ % 10000 == 0)
+				// LOG_INFO("InstrumentID=" << pDepthMarketData->InstrumentID << " TradingDay=" << TradingDay << ":" << pDepthMarketData->TradingDay << " ActionDay=" << ActionDay << ":" << pDepthMarketData->ActionDay << " Time=" << pDepthMarketData->UpdateTime << " Millisec=" << pDepthMarketData->UpdateMillisec);
 
 			(*_Fun)((char*)pDepthMarketData, (uint32_t)sizeof(CThostFtdcDepthMarketDataField));
 		}
