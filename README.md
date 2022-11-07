@@ -1,6 +1,6 @@
 # china-future-exchange-ctp
 <p align="center">
-  <img src ="CheNote_Metallic_blacks.png"/>
+  <img src ="CheNote_Metallic_blacks.png" width="40%" height="40%"/>
 </p>
 
 <p align="center">
@@ -51,14 +51,15 @@ cd china-future-exchange-ctp/server/tdctp_svr && make clean && make -f ./Makefil
 ```
 # 运行
 * tdctp_svr 账户交易服务
-```
-1、 将编译好的tdctp_svr、tdctp_config.ini 复制到同一个目录
-2、 修改tdctp_config.ini 的[ACCOUNT]段落，为自己的期货账户认证信息
-[ACCOUNT]
-updatedb = false
-auth = 0000000000000000
-user =simnow
-appid = simnow_client_test
-fundid = 109896
-3、 ./tdctp_svr
-```
+
+  1. 将编译好的tdctp_svr、tdctp_config.ini 复制到同一个目录
+  2. 修改tdctp_config.ini 的[ACCOUNT]段落，为自己的期货账户认证信息
+    ```
+    [ACCOUNT]
+    updatedb = false
+    auth = 0000000000000000
+    user =simnow
+    appid = simnow_client_test
+    fundid = 109896
+    ```
+  3. ./tdctp_svr
