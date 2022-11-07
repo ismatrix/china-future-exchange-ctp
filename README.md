@@ -1,65 +1,64 @@
-# catalog
+# china-future-exchange-ctp
+<p align="center">
+  <img src ="CheNote_Metallic_blacks.png"/>
+</p>
+
+<p align="center">
+    <img src ="https://img.shields.io/badge/version-1.1.0-blueviolet.svg"/>
+    <img src ="https://img.shields.io/badge/platform-windows|linux|macos-yellow.svg"/>
+    <img src ="https://img.shields.io/badge/gcc-4.7+-blue.svg" />
+    <img src ="https://img.shields.io/github/workflow/status/vnpy/vnpy/Python%20application/master"/>
+    <img src ="https://img.shields.io/github/license/vnpy/vnpy.svg?color=orange"/>
+</p>
+
+# 说明
+
+中国商品期货CTP接入服务程序，支持账户交易，期货行情订阅。 通过使用zero ice 对外提供rpc远程调用接口，实现对客户端跨语言的支持。本程序是搭建期货量化交易平台的基础。
+
+##### 支持交易所
+  * [CTP](https://www.simnow.com.cn/static/apiDownload.action)：国内期货、期权（上期所、大商所、中金所、郑商所、能源所）
+  * [simnow](https://www.simnow.com.cn)：期货模拟仿真平台
+
+# 目录介绍
 ```
-base          基础库
+base          基础服务函数库
 extern_lib	  使用使用的外部库
 init_machine  器配置和和初始化配置信息
-server		  交易和行情 server程序
-shell		  一些shell的工具
+server		  交易服务和行情服务程序
+shell		  测试用shell的工具
 ```
 
-# compile
+# 功能程序介绍
+
+* tdctp_svr 账户交易服务
+* mdlive_svr 实时行情服务
+* mdpast_svr 历史行情服务
+* mdsave_svr 行情存储服务
+* mdindex_svr 指数计算服务
+
+# 编译
 ```
-cd ~/workspace/backend/base && make clean && make
-cd ~/workspace/backend/server/base && make clean && make
-cd ~/workspace/backend/server/tdctp_svr && make clean && make -f ./Makefile.619
-
+* 编译基础库
+cd china-future-exchange-ctp/base && make clean && make
+* 编译账户交易服务
+cd china-future-exchange-ctp/server/base && make clean && make
+cd china-future-exchange-ctp/server/tdctp_svr && make clean && make -f ./Makefile.615
+* 编译行情相关服务
+#cd china-future-exchange-ctp/server/mdlive_svr && make clean && make -f ./Makefile.615
+#cd china-future-exchange-ctp/server/mdpast_svr && make clean && make -f ./Makefile.615
+#cd china-future-exchange-ctp/server/mdsave_svr && make clean && make -f ./Makefile.615
+#cd china-future-exchange-ctp/server/mdindex_svr && make clean && make -f ./Makefile.615
 ```
-
-# release
+# 运行
+* tdctp_svr 账户交易服务
 ```
-ps -ef|grep ctp|grep -v grep | awk '{print $2}' |xargs kill -9 && \cp -f ~/workspace/backend/server/tdctp_svr/tdctp_svr /opt/ctp_XIANQIANG01/ctp_XIANQIANG01 && \cp -f ~/workspace/backend/server/tdctp_svr/tdctp_svr /opt/ctp_XIANQIANG001/ctp_XIANQIANG001 && \cp -f ~/workspace/backend/server/tdctp_svr/tdctp_svr /opt/ctp_XIANQIANG002/ctp_XIANQIANG002
-
-\cp -f ~/workspace/backend/server/tdctp_svr/tdctp_svr /opt/ctp_TRISTAN/ctp_TRISTAN
-```
-
-# release a  new fund
-```
- > first insert the informations of the fund to table FUND on the development machine
- > then execute the cmd:
-     ./release_svr.sh  buid_release commit tdctp_svr fundid
-```
-
-# 部署环境
-```
-120.76.98.94 上部署行情服务：
-
-# 查询合约信息
-17 15 * * * cd /home/ops/production/update_instrment_tools && ./update_instrment_tools --ctp -b 4200 -u 15100058 -p tm7409TTA -a tcp://180.166.11.33:41205 --daomon_update_instrument >> update_instrment_tools.txt &
-30 18 * * * cd /home/ops/production/update_instrment_tools && ./update_instrment_tools --ctp -b 4200 -u 15100058 -p tm7409TTA -a tcp://180.166.11.33:41205 --daomon_update_instrument >> update_instrment_tools.txt &
-40 20 * * * cd /home/ops/production/update_instrment_tools && ./update_instrment_tools --ctp -b 4200 -u 15100058 -p tm7409TTA -a tcp://180.166.11.33:41205 --daomon_update_instrument >> update_instrment_tools.txt &
-
-# 指数每天计算一次 15:30更新的主要是国债数据 有实时的在跑
-30 15 * * * /home/ops/production/mdtools/index.sh currentday all        &
-# 持仓排名计算
-20 15 * * * /home/ops/production/mdtools/index.sh currentday_rank all   &
-
-
-# 每天重启一次rohon程序 不会自动断线重新登录更新tradingday的问题
-30 15 * * * /home/ops/production/monitor/restart_trader.sh &
-55 20 * * * /home/ops/production/monitor/restart_trader.sh &
-
-# 行情服务
-* * * * *  /home/ops/production/monitor/process_monitor.sh "mdindex_svr" "cd /home/ops/production/mdindex_svr;./mdindex_svr" &
-* * * * *  /home/ops/production/monitor/process_monitor.sh "mdpast_svr" "cd /home/ops/production/mdpast_svr;./mdpast_svr" &
-* * * * *  /home/ops/production/monitor/process_monitor.sh "mdlive_svr" "cd /home/ops/production/mdlive_svr;./mdlive_svr" &
-* * * * *  /home/ops/production/monitor/process_monitor.sh "mdsave_svr" "cd /home/ops/production/mdsave_svr;./mdsave_svr" &
-
-
-# 119.23.39.36 部署ctp交易服务
-* * * * *  /home/ops/production/monitor/process_monitor.sh "ctp_RBDS2" "cd /home/ops/production/ctp_RBDS2;./ctp_RBDS2" &
-* * * * *  /home/ops/production/monitor/process_monitor.sh "ctp_JHQHSIMNOW2" "cd /home/ops/production/ctp_JHQHSIMNOW2;./ctp_JHQHSIMNOW2" &
-* * * * *  /home/ops/production/monitor/process_monitor.sh "ctp_JHQHSIMNOW4" "cd /home/ops/production/ctp_JHQHSIMNOW4;./ctp_JHQHSIMNOW4" &
-* * * * *  /home/ops/production/monitor/process_monitor.sh "ctp_WILL01" "cd /home/ops/production/ctp_WILL01;./ctp_WILL01" &
-
-
+1、 将编译好的tdctp_svr、tdctp_config.ini 复制到同一个目录
+2、 修改tdctp_config.ini 的[ACCOUNT]段落，为自己的期货账户认证信息
+[ACCOUNT]
+updatedb = false
+auth = 0000000000000000
+user =simnow
+appid = simnow_client_test
+fundid = 109896
+3、 ./tdctp_svr
 ```
