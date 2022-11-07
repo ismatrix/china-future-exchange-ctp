@@ -1,6 +1,6 @@
 # china-future-exchange-ctp
 <p align="center">
-  <img src ="CheNote_Metallic_blacks.png" width="40%" height="40%"/>
+  <img src ="CheNote_Metallic_blacks.png" width="30%" height="30%"/>
 </p>
 
 <p align="center">
