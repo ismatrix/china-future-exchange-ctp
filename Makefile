@@ -1,4 +1,4 @@
-BASE_DIR=$(shell pwd | awk -F'backend' '{print $$1 "backend"}')
+BASE_DIR=$(shell pwd | awk -F'china-future-exchange-ctp' '{print $$1 "china-future-exchange-ctp"}')
 
 LIB_CTP_TD=-Wl,-Bdynamic  /usr/local/lib/thosttraderapi.15.so
 LIB_CTP_MD=-Wl,-Bdynamic  /usr/local/lib/thostmduserapi.15.so
