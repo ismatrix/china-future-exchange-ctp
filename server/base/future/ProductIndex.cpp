@@ -914,7 +914,8 @@ int CProductIndex::calculate_instrument(string&  tradingday)
 			for(; oit!=it; oit++)
 			{
 				if(oit->second.openinterest		>= it->second.openinterest 
-					&& oit->second.volume		>= it->second.volume) rank++;
+					// && oit->second.volume		>= it->second.volume
+				) rank++;
 				
 				if(oit->second.preopeninterest	>= it->second.preopeninterest) prerank++;
 			}
@@ -922,7 +923,8 @@ int CProductIndex::calculate_instrument(string&  tradingday)
 			for(oit++; oit!=ins.end(); oit++)
 			{
 				if(oit->second.openinterest		> it->second.openinterest
-					&& oit->second.volume		> it->second.volume) rank++;
+					// && oit->second.volume		> it->second.volume
+				) rank++;
 				
 				if(oit->second.preopeninterest	> it->second.preopeninterest) prerank++;
 			}
