@@ -924,7 +924,7 @@ int CProductIndex::calculate_instrument(string&  tradingday)
 				if(oit->second.preopeninterest	> it->second.preopeninterest) prerank++;
 			}
 
-			if(callback_instrument_rank != NULL)  callback_instrument_rank(it->first, prerank, rank, it->second.preopeninterest, it->second.openinterest);
+			if(callback_instrument_rank != NULL)  callback_instrument_rank(it->first, prerank, rank, it->second.preopeninterest, it->second.openinterest, it->second.volume);
 
             LOG_INFO((it->first) << " prerank:" << prerank << " rank:" << rank << " preopeninterest:" << it->second.preopeninterest << " openinterest:" << it->second.openinterest);
 		}
