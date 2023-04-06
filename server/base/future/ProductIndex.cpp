@@ -784,6 +784,7 @@ int  CProductIndex::query_instrument()
 			
 			p.rank = 9999;
 			p.openinterest = 0;
+			p.volume = 0;
 			
 			
 			//if(!val["prerank"].isNull())            p.prerank           =   val["prerank"].asInt();
@@ -912,8 +913,8 @@ int CProductIndex::calculate_instrument(string&  tradingday)
 			map<string, Instrument>::iterator oit = ins.begin();
 			for(; oit!=it; oit++)
 			{
-				if(oit->second.openinterest		> it->second.openinterest 
-					&& oit->second.volume		> it->second.volume) rank++;
+				if(oit->second.openinterest		>= it->second.openinterest 
+					&& oit->second.volume		>= it->second.volume) rank++;
 				
 				if(oit->second.preopeninterest	>= it->second.preopeninterest) prerank++;
 			}
