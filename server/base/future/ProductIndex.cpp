@@ -912,8 +912,8 @@ int CProductIndex::calculate_instrument(string&  tradingday)
 			map<string, Instrument>::iterator oit = ins.begin();
 			for(; oit!=it; oit++)
 			{
-				if(oit->second.openinterest		>= it->second.openinterest 
-					&& oit->second.volume		>= it->second.volume) rank++;
+				if(oit->second.openinterest		> it->second.openinterest 
+					&& oit->second.volume		> it->second.volume) rank++;
 				
 				if(oit->second.preopeninterest	>= it->second.preopeninterest) prerank++;
 			}
