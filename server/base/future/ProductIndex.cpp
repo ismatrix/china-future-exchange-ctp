@@ -722,7 +722,7 @@ int CProductIndex::calculate_master_instrument()			//计算日k指数数据并�
 				//yes_tmp[daybars[i].daybar.PreoOpenInterest]  = daybars[i];
 
 				if(callback_instrument_rank!= NULL)
-					set_openinterest(productid, daybars[i].instrument, (double)daybars[i].daybar.OpenInterest, (double)daybars[i].daybar.PreoOpenInterest);
+					set_openinterest(productid, daybars[i].instrument, (double)daybars[i].daybar.OpenInterest, (double)daybars[i].daybar.PreoOpenInterest, (int)daybars[i].daybar.Volume);
 			}
 
 			//更新主连日k 和  全天分k 如果设置回调的话
@@ -827,7 +827,7 @@ void CProductIndex::set_instrumenttable(Instrument* p)
     instrument_products[p->ctp_instrument.InstrumentID] = p->ctp_instrument.ProductID;
 }
 
-void CProductIndex::set_openinterest(string& productid, string& instrument, double openinterest, double  preopeninterest)
+void CProductIndex::set_openinterest(string& productid, string& instrument, double openinterest, double  preopeninterest, int volume)
 {
     LOG_INFO(productid << " " << instrument << " " << openinterest << " " << preopeninterest);
 	typeof(instrumenttable.begin()) itr = instrumenttable.find(productid);
@@ -841,6 +841,7 @@ void CProductIndex::set_openinterest(string& productid, string& instrument, doub
 			//itr->second.prerank
 			itr->second.openinterest		= openinterest;
 			itr->second.preopeninterest     = preopeninterest;
+			itr->second.volume     			= volume;
 		}
 		else
 		{

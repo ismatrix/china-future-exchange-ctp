@@ -168,7 +168,7 @@ class CProductIndex
 	private:
 
 	void set_instrumenttable(Instrument* p);
-	void set_openinterest(string& productid, string& instrument, double openinterest, double preopeninterest);
+	void set_openinterest(string& productid, string& instrument, double openinterest, double preopeninterest, int volume);
 
 	int calculate_instrument(string&  tradingday);
 
