@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 #include "ice/Common.h"
-#include "RollLog.h"
+// #include "RollLog.h"
 #include "future/file.h"
 #include "future/hq.h"
 #include "mongoc_json.h"
