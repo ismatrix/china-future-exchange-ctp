@@ -56,6 +56,7 @@ struct Instrument
 		openinterest	=0;
 		prerank			=0;
 		preopeninterest	=0;
+		volume			=0;
 		memset(&ctp_instrument, 0, sizeof(ctp_instrument));
 	}
 	CtpInstrument ctp_instrument;
@@ -63,6 +64,7 @@ struct Instrument
 	uint32_t	openinterest;
 	uint32_t	prerank;
 	uint32_t    preopeninterest;
+	int	    	volume;
 	string		updatetime;
 };
 
