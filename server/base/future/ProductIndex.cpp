@@ -108,7 +108,7 @@ void write_master_ticker_file(const string& tradingday, const string& instrument
 }
 
 //更新合约表合约排名到数据库中
-void  update_instrument_rank(const string& instrument, const int prerank, const int rank, double preopeninterest, double openinterest)
+void  update_instrument_rank(const string& instrument, const int prerank, const int rank, double preopeninterest, double openinterest, const int volume)
 {
 	Json::Value s, r;
 	//get_CThostFtdcInstrumentField(root, &ins.ctp_instrument);
@@ -118,6 +118,7 @@ void  update_instrument_rank(const string& instrument, const int prerank, const 
 	s["preopeninterest"]	= preopeninterest;
 	s["rank"]				= rank;
 	s["openinterest"]		= openinterest;
+	s["volume"]				= volume;
 	s["instrumentid"]		= instrument;
 	r["$set"]	= s;
 
@@ -779,6 +780,7 @@ int  CProductIndex::query_instrument()
 			get_CThostFtdcInstrumentField_Struct(val, &p.ctp_instrument);
 			if(!val["rank"].isNull())               p.prerank              =   val["rank"].asInt();
 			if(!val["openinterest"].isNull())       p.preopeninterest      =   val["openinterest"].asInt();
+			if(!val["volume"].isNull())       		p.volume      			=   val["volume"].asInt();
 			
 			p.rank = 9999;
 			p.openinterest = 0;
@@ -827,7 +829,7 @@ void CProductIndex::set_instrumenttable(Instrument* p)
     instrument_products[p->ctp_instrument.InstrumentID] = p->ctp_instrument.ProductID;
 }
 
-void CProductIndex::set_openinterest(string& productid, string& instrument, double openinterest, double  preopeninterest, int volume)
+void CProductIndex::set_openinterest(string& productid, string& instrument, double openinterest, double  preopeninterest, const int volume)
 {
     LOG_INFO(productid << " " << instrument << " " << openinterest << " " << preopeninterest);
 	typeof(instrumenttable.begin()) itr = instrumenttable.find(productid);

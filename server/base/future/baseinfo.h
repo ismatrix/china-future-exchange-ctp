@@ -64,7 +64,7 @@ struct Instrument
 	uint32_t	openinterest;
 	uint32_t	prerank;
 	uint32_t    preopeninterest;
-	int	    	volume;
+	uint32_t   	volume;
 	string		updatetime;
 };
 

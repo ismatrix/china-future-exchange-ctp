@@ -49,7 +49,7 @@ typedef void (*_callback_daybar_master)(const string& tradingday, const string& 
 
 typedef void (*_callback_bar_master)(const string& tradingday, const string& instrument, const string& master_instrument);
 
-typedef void (*_callback_instrument_rank)(const string& instrument, const int prerank, const int rank, double openinterest, double preopeninterest);
+typedef void (*_callback_instrument_rank)(const string& instrument, const int prerank, const int rank, double openinterest, double preopeninterest, const int volume);
 
 
 
@@ -66,7 +66,7 @@ void  write_daybar_db_master(const string& tradingday, const string& instrument,
 //写分k主连文件
 void  write_bar_file_master(const string& tradingday, const string& instrument,  const string& master_instrument);
 //写合约排名信息
-void update_instrument_rank(const string& instrument, const int prerank, const int rank, double openinterest, double preopeninterest);
+void update_instrument_rank(const string& instrument, const int prerank, const int rank, double openinterest, double preopeninterest, const int volume);
 
 //数据来源 db file 实时
 //生成数据 实时写文件  写db   实时push下游不定
@@ -168,7 +168,7 @@ class CProductIndex
 	private:
 
 	void set_instrumenttable(Instrument* p);
-	void set_openinterest(string& productid, string& instrument, double openinterest, double preopeninterest, int volume);
+	void set_openinterest(string& productid, string& instrument, double openinterest, double preopeninterest, const int volume);
 
 	int calculate_instrument(string&  tradingday);
 

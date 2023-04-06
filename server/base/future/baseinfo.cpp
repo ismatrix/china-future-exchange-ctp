@@ -196,7 +196,8 @@ int BaseInfo::update()
 			if(!val["openinterest"].isNull()) 		p.openinterest 		= 	val["openinterest"].asInt();
 			if(!val["prerank"].isNull()) 			p.prerank 			= 	val["prerank"].asInt();
 			if(!val["preopeninterest"].isNull()) 	p.preopeninterest 	= 	val["preopeninterest"].asInt();
-			if(!val["updatetime"].isNull()) 		p.updatetime 	= 	val["updatetime"].asInt();
+			if(!val["volume"].isNull()) 			p.volume 			= 	val["volume"].asInt();
+			if(!val["updatetime"].isNull()) 		p.updatetime 		= 	val["updatetime"].asInt();
 			set_instruments(p);
 			
 			//更新主连
