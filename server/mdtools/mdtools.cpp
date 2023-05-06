@@ -35,8 +35,8 @@ using namespace std;
 
 #define  __CONFIG__  "mdtools_config.ini"
 
-//¶ÁÈ¡¶ş½øÖÆ×ª»¯ÎÄ±¾
-//¶ÁÈ¡ÎÄ±¾×ª»¯¶ş½øÖÆ
+//è¯»å–äºŒè¿›åˆ¶è½¬åŒ–æ–‡æœ¬
+//è¯»å–æ–‡æœ¬è½¬åŒ–äºŒè¿›åˆ¶
 // tradingday	instrument
 typedef void (*HandleFun)(int argc, char* argv[]);
 
@@ -51,13 +51,13 @@ string outprefix;
 
 void usage()
 {
-	//°üº¬ÁËĞŞ¸Ätxt datÎÄ¼ş
+	//åŒ…å«äº†ä¿®æ”¹txt datæ–‡ä»¶
 	puts("-intxt (M1|T) instrument tradingday inprefix a.txt -outtxt prefix	//-intxt T IF1606 20160526 ./ IF1606.txt -outtxt ./\n");
 	puts("-intxt (M1|T) instrument tradingday inprefix a.txt -outdat prefix	//-intxt T IF1606 20160526 ./ IF1606.txt -outdat ./\n");
 	puts("-transtxt (M1|T) file.txt                                         //-transtxt T file.dat\n");
 	puts("-transdat (M1|T) file.dat                                         //-transdat T file.txt\n");
 	
-	//¸ù¾İtickerÉú³ÉM1 ticker
+	//æ ¹æ®tickerç”ŸæˆM1 ticker
 	puts("-rundata infile   outprefix                                //-rundata  ./a.txt /mnt/hqdata/\n");
 	puts("-tradetime_status HHMMSS  market                          //-tradetime  160000 SHFE.   check market status on tradetime.");
 	puts("-tradetime_status_change  HHMMSS HHMMSS market            //-tradetime  160000   210000 SHFE .check change market status.");
@@ -69,19 +69,19 @@ void usage()
 	puts("-istrading product now									//-istrading ag 0|2016-01-01 00:00:00 check if trading now");
 	puts("-pkline  instrumentid tradingday							//-pkline ag1612 20161025   product kline by ticker, default ./hqdata");
 
-	//Ö¸ÊıÉú³ÉÏà¹ØµÄ
+	//æŒ‡æ•°ç”Ÿæˆç›¸å…³çš„
 	puts("-index -day-t     tradingday                              //-index -day-t 20160626");
 	puts("-index -day-p	    product                                 //-index -day-p IF");
 	puts("-index -day	    all										//-index -day  produce all day bar");
 	
-	//¼ÆËã·ÖkµÄÍ¬Ê± Ò²Òª¼ÆËã×îºóµÄÈÕk ²¢Èë¿â
+	//è®¡ç®—åˆ†kçš„åŒæ—¶ ä¹Ÿè¦è®¡ç®—æœ€åçš„æ—¥k å¹¶å…¥åº“
 	puts("-index -minute-t  tradingday                              //-index -minute-t 20160626");
 	puts("-index -minute-p  product                                 //-index -minute-p  IF");
 	puts("-index -minute	all		                                //-index -minute produce all minute bar");
 	
 	puts("-index -query-p											//-index -query-p");
 
-	//¼ÆËãºÏÔ¼±íÖĞÖ÷Á¬µÄÅÅÃû 
+	//è®¡ç®—åˆçº¦è¡¨ä¸­ä¸»è¿çš„æ’å 
 	puts("-index -master-t  20160616								//-master tradingday 20160616");
 	puts("-index -master-p  IF										//-master tradingday IF");
 	puts("-index -master    all										//-master all");
@@ -115,23 +115,23 @@ int Write_DayBar(DayBar& daybar, string instrument,string tradingday)
 	CMongodb& db = CMongodb::Instance();
 	db.ChangeCollection("DAYBAR");
 	
-	//json ²»Ö§³Öuint64  ×ªÎªstring
+	//json ä¸æ”¯æŒuint64  è½¬ä¸ºstring
 	Json::Value q, s;
 	s["instrument"]			=      instrument;
 	s["tradingday"]			=		tradingday;
 	s["timestamp"]			=		toa(daybar.Timestamp);        
-	s["high"]				=		daybar.High;               //×î¸ß¼Û
-	s["low"]				=		daybar.Low;                //×îµÍ¼Û
-	s["open"]				=		daybar.Open;               //¿ªÅÌ¼Û
-	s["close"]				=		daybar.Close;              //ÊÕÅÌ¼Û
-	s["average"]			=		daybar.Turnover/daybar.Volume;            //ÈÕ¾ù¼Û
-	s["volume"]				=		daybar.Volume;             //³É½»Á¿
-	s["turnover"]			=		daybar.Turnover;           //³É½»¶î
-	s["settlement"]			=		daybar.Settlement;         //½áËã¼Û
-	s["presettlement"]		=		daybar.PreSettlement;      //ÉÏ´Î½áËã¼Û
-	s["preclose"]			=		daybar.PreClose;           //×òÊÕÅÌ
-	s["preoopeninterest"]	=		daybar.PreoOpenInterest;   //×ò³Ö²ÖÁ¿
-	s["openinterest"]		=		daybar.OpenInterest;   //×ò³Ö²ÖÁ¿
+	s["high"]				=		daybar.High;               //æœ€é«˜ä»·
+	s["low"]				=		daybar.Low;                //æœ€ä½ä»·
+	s["open"]				=		daybar.Open;               //å¼€ç›˜ä»·
+	s["close"]				=		daybar.Close;              //æ”¶ç›˜ä»·
+	s["average"]			=		daybar.Turnover/daybar.Volume;            //æ—¥å‡ä»·
+	s["volume"]				=		daybar.Volume;             //æˆäº¤é‡
+	s["turnover"]			=		daybar.Turnover;           //æˆäº¤é¢
+	s["settlement"]			=		daybar.Settlement;         //ç»“ç®—ä»·
+	s["presettlement"]		=		daybar.PreSettlement;      //ä¸Šæ¬¡ç»“ç®—ä»·
+	s["preclose"]			=		daybar.PreClose;           //æ˜¨æ”¶ç›˜
+	s["preoopeninterest"]	=		daybar.PreoOpenInterest;   //æ˜¨æŒä»“é‡
+	s["openinterest"]		=		daybar.OpenInterest;   //æ˜¨æŒä»“é‡
 	s["price"]				=		daybar.Price;
 	s["upperlimit"]			=		daybar.UpperLimit;
 	s["lowerlimit"]			=		daybar.LowerLimit;
@@ -170,7 +170,7 @@ void preprocess(CThostFtdcDepthMarketDataField* pDepthMarketData)
     }
 }
 
-//klineÖ÷Âß¼­ ĞèÒªÀÛ»ıÈÕk
+//klineä¸»é€»è¾‘ éœ€è¦ç´¯ç§¯æ—¥k
 int RunHq(const char* pin, uint32_t len, int wnum)
 {
     map<string, InstrumentData*>& mapInstrmentData = g_mapInstrmentData;
@@ -189,36 +189,36 @@ int RunHq(const char* pin, uint32_t len, int wnum)
 
     preprocess(pnew);
 
-    InstrumentData* prev = NULL;	//ÉÏÒ»¸ö¿ìÕÕ
-    //¶Ô±ÈmapInstrmentData snapºÍpnew
+    InstrumentData* prev = NULL;	//ä¸Šä¸€ä¸ªå¿«ç…§
+    //å¯¹æ¯”mapInstrmentData snapå’Œpnew
     map<string, InstrumentData*>::iterator itr =  mapInstrmentData.find(pnew->InstrumentID);
     if(itr == mapInstrmentData.end() || strlen(itr->second->snap.InstrumentID) < 1)
     {
-        //µÚÒ»¸ö¿ìÕÕ¸üĞÂ
+        //ç¬¬ä¸€ä¸ªå¿«ç…§æ›´æ–°
         LOG_INFO("new InstrumentID:" << pnew->InstrumentID);
-        prev = GetInstrumentData(pnew->InstrumentID, true);	//´´½¨Ò»¸öºÏÔ¼Î»ÖÃ
-        PreProcessData(prev, pnew, true); // TODO ĞèÒª¼ì²éÕâÀïµÄĞèÒª´¦Àí²» ³É½»¶î
+        prev = GetInstrumentData(pnew->InstrumentID, true);	//åˆ›å»ºä¸€ä¸ªåˆçº¦ä½ç½®
+        PreProcessData(prev, pnew, true); // TODO éœ€è¦æ£€æŸ¥è¿™é‡Œçš„éœ€è¦å¤„ç†ä¸ æˆäº¤é¢
         memcpy(&prev->snap, pnew, sizeof(CThostFtdcDepthMarketDataField));
         return 0;
     }
     else
     {
         prev = (itr->second);
-        PreProcessData(prev, pnew, true);//TODO ĞèÒª¼ì²éÕâÀïµÄĞèÒª´¦Àí²» ³É½»¶î ³É½»¾ù¼Û Ê±¼ä´Á
+        PreProcessData(prev, pnew, true);//TODO éœ€è¦æ£€æŸ¥è¿™é‡Œçš„éœ€è¦å¤„ç†ä¸ æˆäº¤é¢ æˆäº¤å‡ä»· æ—¶é—´æˆ³
     }
 
     char timebuf[32] = {0};
     snprintf(timebuf, sizeof(timebuf), "%s %s", pnew->ActionDay, pnew->UpdateTime);
-    //struct tm _tm = strtotm(timebuf, "%Y%m%d %H:%M:%S"); //µ±Ç°Ê±¼ä
+    //struct tm _tm = strtotm(timebuf, "%Y%m%d %H:%M:%S"); //å½“å‰æ—¶é—´
 
     // printf("prev->snap.Volume:%d pnew->Volume:%d\n", prev->snap.Volume, pnew->Volume);
-    //¼ÆËãkline
+    //è®¡ç®—kline
     if(pnew->Volume > prev->snap.Volume && IsDValid(pnew->LastPrice) && pnew->Turnover > prev->snap.Turnover)
     {
         calculate_Kline(prev, timebuf, pnew->LastPrice, pnew->Volume - prev->snap.Volume, pnew->Turnover-prev->snap.Turnover, pnew->OpenInterest);
     }
 
-    //¼ÆËãticker
+    //è®¡ç®—ticker
     if((pnew->Volume > prev->snap.Volume && pnew->Turnover > prev->snap.Turnover) ||  
             (IsDValid(pnew->BidPrice1) & !IsEqDouble(pnew->BidPrice1, prev->snap.BidPrice1)) || 
             pnew->BidVolume1	!= prev->snap.BidVolume1 || 
@@ -236,7 +236,7 @@ int RunHq(const char* pin, uint32_t len, int wnum)
 
 
 
-//¶ÁÈëtxtĞ´¶ÔÓ¦datÖĞ
+//è¯»å…¥txtå†™å¯¹åº”datä¸­
 void Handle_intxt(int argc, char* argv[])
 {
     if(argc < 8)
@@ -278,7 +278,7 @@ void Handle_intxt(int argc, char* argv[])
     f.set__prefix(inprefix);
     f.ReadDat(ticker_add, tradingday, instrument);
 
-    //Ë³Ğò²åÈë
+    //é¡ºåºæ’å…¥
     list< ::CM::Ticker>::iterator itr = ticker_add.begin();
     for(; itr!=ticker_add.end(); itr++)
     {
@@ -360,7 +360,7 @@ void Handle_ctd(int argc, char* argv[])
 
     time_t t = strtostamp(argv[2], "%Y-%m-%d %H:%M:%S");
 
-    //²éÑ¯½Ú¼ÙÈÕ±ímongo
+    //æŸ¥è¯¢èŠ‚å‡æ—¥è¡¨mongo
     g_holidays.Init(CMongodb::Instance());
     uint32_t today_trade = atoll(stamptostr(g_holidays.GetTradingDay(t), "%Y%m%d").c_str());
 
@@ -379,7 +379,7 @@ void Handle_copen(int argc, char* argv[])
     time_t t = time(NULL);
     if(atoll(argv[2]) > 2016) t = strtostamp(argv[2], "%Y%m%d");
 
-    //²éÑ¯½Ú¼ÙÈÕ±ímongo
+    //æŸ¥è¯¢èŠ‚å‡æ—¥è¡¨mongo
     g_holidays.Init(CMongodb::Instance());
     int flag  = g_holidays.IsOpenDay(t);
 
@@ -403,7 +403,7 @@ void Handle_istrading(int argc, char* argv[])
     int delay = 60;
     if(argc >= 5) delay = atoll(argv[4]);
 
-    //²éÑ¯½Ú¼ÙÈÕ±ímongo
+    //æŸ¥è¯¢èŠ‚å‡æ—¥è¡¨mongo
     //g_tradetime.Init(CMongodb::Instance());
     g_holidays.Init(CMongodb::Instance());
     g_timeserise.Init(CMongodb::Instance());
@@ -440,7 +440,7 @@ void Handle_rundata(int argc, char* argv[])
     }
 
     //./IC1505_20150508.csv 
-    //·ÖÎöurl»ñÈ¡ºÏÔ¼idºÍ½»Ò×ÈÕ TF1612_20160509.csv
+    //åˆ†æurlè·å–åˆçº¦idå’Œäº¤æ˜“æ—¥ TF1612_20160509.csv
     tradingday = infile.substr(len-12, 8);
     std::size_t pos = infile.rfind('/');
     if(pos != std::string::npos) 
@@ -456,7 +456,7 @@ void Handle_rundata(int argc, char* argv[])
 
     g_file = new CFile(outprefix.c_str(), ".dat");       
 
-    //ÈÕk
+    //æ—¥k
     struct tm _tm = strtotm(tradingday.c_str(), "%Y%m%d");
     DayBar daybar;
     memset(&daybar, 0, sizeof(daybar));
@@ -481,19 +481,19 @@ void Handle_rundata(int argc, char* argv[])
         }
 
         if(flag==1) 
-        {	//µÚÒ»ĞĞ±íÍ·
+        {	//ç¬¬ä¸€è¡Œè¡¨å¤´
             flag++;
             continue;
         }
         else if(flag == 2)
         {
-            //µÚ¶şĞĞ×òÊÕĞÅÏ¢
+            //ç¬¬äºŒè¡Œæ˜¨æ”¶ä¿¡æ¯
             flag++;
             daybar.PreClose = atof(v[3].c_str());
             daybar.PreSettlement  = daybar.PreClose;
             daybar.PreoOpenInterest = atoll(v[4].c_str()); 
 
-            //µÚ¶şĞĞ¿ªÊ¼µÄÁ¿ ¶îÎª×òÌìµÄ³Ö²ÖÁ¿¶î  ĞèÒª¸üĞÂÎª0	
+            //ç¬¬äºŒè¡Œå¼€å§‹çš„é‡ é¢ä¸ºæ˜¨å¤©çš„æŒä»“é‡é¢  éœ€è¦æ›´æ–°ä¸º0	
             v[7] = "";
             v[6] = "";
         }
@@ -503,7 +503,7 @@ void Handle_rundata(int argc, char* argv[])
         uint32_t mill = atoll(v[2].substr(20).c_str());
         if(foward_time == v[2])
         {
-            mill++; //ÒòÎªÂòµÄÄÇ·İÊı¾İÖĞ1ÃëÄÚÁ½¸ötickerµÄÊ±¼äÖµÊÇÒ»ÑùµÄ¡£ ºÁÃëÈ«²¿¶¼ÊÇ000
+            mill++; //å› ä¸ºä¹°çš„é‚£ä»½æ•°æ®ä¸­1ç§’å†…ä¸¤ä¸ªtickerçš„æ—¶é—´å€¼æ˜¯ä¸€æ ·çš„ã€‚ æ¯«ç§’å…¨éƒ¨éƒ½æ˜¯000
         }
         foward_time = v[2];
         //time_t tm = strtostamp(time.c_str(), "%Y%m%d %H:%M:%S");
@@ -512,13 +512,13 @@ void Handle_rundata(int argc, char* argv[])
         Volume		= atoll(v[7].c_str());
         Turnover	= atoll(v[6].c_str());
 
-        //·Ç·¨Êı¾İ
+        //éæ³•æ•°æ®
         if(Volume < 0 || Turnover < 0 || atof(v[3].c_str()) < 0.00001)
         {
             LOG_ERROR("volume buf=" << buf);
             continue;
         }
-        //ÓÉ¿ìÕÕÉú³ÉÏà¹ØÊı¾İ
+        //ç”±å¿«ç…§ç”Ÿæˆç›¸å…³æ•°æ®
 
         memcpy(&tmp.TradingDay, tradingday.c_str(), sizeof(tmp.TradingDay));
         memcpy(&tmp.InstrumentID,instrument.c_str(), sizeof(tmp.InstrumentID));
@@ -547,7 +547,7 @@ void Handle_rundata(int argc, char* argv[])
 
 
 
-        //ÕâÀï¸ù¾İÕâÈı¸ö¼ÆËãkey 2015-04-05 13:23:12
+        //è¿™é‡Œæ ¹æ®è¿™ä¸‰ä¸ªè®¡ç®—key 2015-04-05 13:23:12
         snprintf((char*)&tmp.ActionDay, sizeof(tmp.ActionDay), "%s%s%s", time.substr(0, 4).c_str(), time.substr(5, 2).c_str(), time.substr(8, 2).c_str());
         snprintf((char*)&tmp.UpdateTime, sizeof(tmp.UpdateTime), "%s", time.substr(11, 8).c_str());
         tmp.UpdateMillisec = mill;
@@ -555,15 +555,15 @@ void Handle_rundata(int argc, char* argv[])
         //cout << "v[2]=" << v[2] << " time=" << time << " mill=" << mill << endl;
         //cout << "tmp.ActionDay=" << tmp.ActionDay << " tmp.UpdateTime=" << tmp.UpdateTime << " tmp.UpdateMillisec=" << tmp.UpdateMillisec << endl;
 
-        tmp.BidPrice1          =  atof(v[12].c_str());  //Âò1              
+        tmp.BidPrice1          =  atof(v[12].c_str());  //ä¹°1              
         tmp.BidVolume1         =  atoll(v[14].c_str());            
-        tmp.AskPrice1          =  atof(v[13].c_str());  //Âô1              
+        tmp.AskPrice1          =  atof(v[13].c_str());  //å–1              
         tmp.AskVolume1         =  atoll(v[15].c_str());   
 
         RunHq((const char*)&tmp, sizeof(CThostFtdcDepthMarketDataField), 1);
 
 
-        //ÀÛ»ıÈÕk ×òÊÕ¼Û¸ñ²»ÄÜÀ´¸ø½ñÌì¿ªÅÌ »òÕß×÷Îª½ñÌì×î¸ß×îµÍ¡£¡£¡£¡£
+        //ç´¯ç§¯æ—¥k æ˜¨æ”¶ä»·æ ¼ä¸èƒ½æ¥ç»™ä»Šå¤©å¼€ç›˜ æˆ–è€…ä½œä¸ºä»Šå¤©æœ€é«˜æœ€ä½ã€‚ã€‚ã€‚ã€‚
         if(tmp.LastPrice > 0.00001 && flag > 2)
         {
             if(tmp.LastPrice > daybar.High) daybar.High = 	tmp.LastPrice;
@@ -579,14 +579,14 @@ void Handle_rundata(int argc, char* argv[])
         }
     }
 
-    //Ğ´ÈÕk
+    //å†™æ—¥k
     if(daybar.Open > 0 && daybar.Volume > 0) Write_DayBar(daybar, instrument, tradingday);
 
     flush_data();
 }
 
 
-//¸ù¾İtickerÉú³É1·Ök
+//æ ¹æ®tickerç”Ÿæˆ1åˆ†k
 void Handle_pkline(int argc, char* argv[])
 {
     if(argc < 4)
@@ -610,26 +610,26 @@ void Handle_pkline(int argc, char* argv[])
     if(it == g_mapInstrmentData.end())
     {
         LOG_INFO("new InstrumentID:" << instrument);
-        prev = GetInstrumentData(instrument, true);	//´´½¨Ò»¸öºÏÔ¼Î»ÖÃ
+        prev = GetInstrumentData(instrument, true);	//åˆ›å»ºä¸€ä¸ªåˆçº¦ä½ç½®
     }
     else
     {
-        prev = (it->second); //ÕÒµ½ºÏÔ¼
+        prev = (it->second); //æ‰¾åˆ°åˆçº¦
     }
 
     g_file = new CFile("./hqdata", ".dat");       
 
-    //¶ÁÈ¡ËùÓĞµÄticke
+    //è¯»å–æ‰€æœ‰çš„ticke
     list< ::CM::Ticker> ticker;
     g_file->ReadTxt(ticker, tradingday, instrument);
 
-    //±éÀúticker Éú³É1·Ök
+    //éå†ticker ç”Ÿæˆ1åˆ†k
     list< ::CM::Ticker>::iterator itr = ticker.begin();
     for(; itr!=ticker.end(); itr++)
     {
         if(itr->Volume > 0)
         {
-            //t.Timestamp ¼ÆËãtimebuf
+            //t.Timestamp è®¡ç®—timebuf
             string buf = stamptostr(itr->Timestamp / 1000, "%Y%m%d %H:%M:%S");
             calculate_Kline(prev, (char*)buf.c_str(),  itr->Price, itr->Volume, itr->Turnover, itr->OpenInterest);
         }
@@ -642,7 +642,7 @@ void Handle_pkline(int argc, char* argv[])
     delete g_file;;
 }
 
-//¼ÓÔØtradingdayËùÓĞºÏÔ¼ÈÕk ²¢¼ÆËãÉú³ÉÖ¸ÊıµÄÈÕk
+//åŠ è½½tradingdayæ‰€æœ‰åˆçº¦æ—¥k å¹¶è®¡ç®—ç”ŸæˆæŒ‡æ•°çš„æ—¥k
 void Handle_day_t(int argc, char* argv[])
 {
     if(argc < 4)
@@ -658,7 +658,7 @@ void Handle_day_t(int argc, char* argv[])
     index.calculate_daybar();
 }
 
-//¼ÓÔØ²úÆ·¶ÔÓ¦ËùÓĞºÏÔ¼ÈÕk ²¢¼ÆËãÉú³ÉÖ¸ÊıÈÕk
+//åŠ è½½äº§å“å¯¹åº”æ‰€æœ‰åˆçº¦æ—¥k å¹¶è®¡ç®—ç”ŸæˆæŒ‡æ•°æ—¥k
 void Handle_day_p(int argc, char* argv[])
 {
     if(argc < 4)
@@ -674,7 +674,7 @@ void Handle_day_p(int argc, char* argv[])
     index.calculate_daybar();
 }
 
-//¼ÓÔØËùÓĞºÏÔ¼ÈÕk ²¢¼ÆËãÉú³ÉÖ¸ÊıÈÕk
+//åŠ è½½æ‰€æœ‰åˆçº¦æ—¥k å¹¶è®¡ç®—ç”ŸæˆæŒ‡æ•°æ—¥k
 void Handle_day(int argc, char* argv[])
 {
     if(argc < 3)
@@ -688,7 +688,7 @@ void Handle_day(int argc, char* argv[])
     index.calculate_daybar();
 }
 
-//¼ÓÔØtradingdayËùÓĞ·Ök ²¢Éú³É¶ÔÓ¦Ö¸Êı·Ök
+//åŠ è½½tradingdayæ‰€æœ‰åˆ†k å¹¶ç”Ÿæˆå¯¹åº”æŒ‡æ•°åˆ†k
 void Handle_minute_t(int argc, char* argv[])
 {
     if(argc < 4)
@@ -705,7 +705,7 @@ void Handle_minute_t(int argc, char* argv[])
     index.calculate_bar();
 }
 
-//¼ÓÔØproduct¶ÔÓ¦ËùÓĞ·Ök ²¢Éú³ÉÖ¸Êı¶ÔÓ¦·Ök
+//åŠ è½½productå¯¹åº”æ‰€æœ‰åˆ†k å¹¶ç”ŸæˆæŒ‡æ•°å¯¹åº”åˆ†k
 void Handle_minute_p(int argc, char* argv[])
 {
     if(argc < 4)
@@ -721,7 +721,7 @@ void Handle_minute_p(int argc, char* argv[])
     index.calculate_bar();
 }
 
-//¼ÓÔØËùÓĞµÄ·Ök²¢Éú³É¶ÔÓ¦Ö¸Êı·Ök
+//åŠ è½½æ‰€æœ‰çš„åˆ†kå¹¶ç”Ÿæˆå¯¹åº”æŒ‡æ•°åˆ†k
 void Handle_minute(int argc, char* argv[])
 {
     if(argc < 3)
@@ -736,7 +736,7 @@ void Handle_minute(int argc, char* argv[])
 }
 
 
-//²éÑ¯ºÏÔ¼¶ÔÓ¦µÄproductid
+//æŸ¥è¯¢åˆçº¦å¯¹åº”çš„productid
 void Handle_query_p(int argc, char* argv[])
 {
     if(argc < 4)
@@ -749,7 +749,7 @@ void Handle_query_p(int argc, char* argv[])
     cout << index.get_productid(argv[3]) << endl;
 }
 
-//¸ù¾İ³Ö²Ö¼ÆËãproductµÄºÏÔ¼µÄÅÅÃû µÃ³öÖ÷Á¬ Ğ´Ö÷Á¬µÄÈÕkºÍ·Ök
+//æ ¹æ®æŒä»“è®¡ç®—productçš„åˆçº¦çš„æ’å å¾—å‡ºä¸»è¿ å†™ä¸»è¿çš„æ—¥kå’Œåˆ†k
 void Handle_master_p(int argc, char* argv[])
 {
     if(argc < 4)
@@ -769,7 +769,7 @@ void Handle_master_p(int argc, char* argv[])
 }
 
 
-//¸ù¾İ³Ö²Ö¼ÆËãtradingdayµÄºÏÔ¼µÄÅÅÃû µÃ³öÖ÷Á¬ Ğ´Ö÷Á¬µÄÈÕkºÍ·Ök
+//æ ¹æ®æŒä»“è®¡ç®—tradingdayçš„åˆçº¦çš„æ’å å¾—å‡ºä¸»è¿ å†™ä¸»è¿çš„æ—¥kå’Œåˆ†k
 void Handle_master_t(int argc, char* argv[])
 {
     if(argc < 4)
@@ -789,7 +789,7 @@ void Handle_master_t(int argc, char* argv[])
 }
 
 
-//¸ù¾İ³Ö²Ö¼ÆËãËùÓĞµÄºÏÔ¼µÄÅÅÃû µÃ³öÖ÷Á¬ Ğ´Ö÷Á¬µÄÈÕkºÍ·Ök
+//æ ¹æ®æŒä»“è®¡ç®—æ‰€æœ‰çš„åˆçº¦çš„æ’å å¾—å‡ºä¸»è¿ å†™ä¸»è¿çš„æ—¥kå’Œåˆ†k
 void Handle_master(int argc, char* argv[])
 {
     if(argc < 3)
@@ -836,7 +836,7 @@ void Handle_index(int argc, char* argv[])
     }
 }
 
-//¸üĞÂºÏÔ¼ÅÅÃû
+//æ›´æ–°åˆçº¦æ’å
 void Handle_instrument_rank(int argc, char* argv[])
 {
     if(argc < 3)
